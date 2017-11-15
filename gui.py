@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
  
 import tdl
+import os
 from tcod import image_load
 from random import randint
 import colors
@@ -324,7 +325,7 @@ def closest_monster(max_range):
 
 def save_game():
     #open a new empty shelve (possibly overwriting an old one) to write the game data
-    with shelve.open('savegame', 'n') as savefile:
+    with shelve.open(os.path.join("savegames",'savegame'), 'n') as savefile:
         savefile['my_map'] = world.my_map
         savefile['objects'] = world.my_map.objects
         savefile['player_index'] = world.my_map.objects.index(player)  #index of player in objects list
