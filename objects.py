@@ -81,7 +81,15 @@ class GameObject:
     def clear(self,con):
         #erase the character that represents this object
         con.draw_char(self.x, self.y, ' ', self.color, bg=None)
- 
+
+
+class Player(GameObject):
+    def __init__(self, x, y, char, name, color, my_map, blocks=False, 
+                 fighter=None, ai=None, item=None):
+        super(Player, self).__init__(x,y,char,name,color,my_map,blocks,fighter,ai,item)
+        self.inventory = []
+
+        
 class Fighter:
     #combat-related properties and methods (monster, player, NPC).
     def __init__(self, hp, defense, power, death_function=None):
@@ -159,7 +167,7 @@ class Item:
     def __init__(self, use_function=None):
         self.use_function = use_function
  
-    def pick_up(self):
+    def pick_up(self,inventory,objects):
         #add to the player's inventory and remove from the map
         if len(inventory) >= 26:
             print('Your inventory is full, cannot pick up ' + 
@@ -169,7 +177,7 @@ class Item:
             objects.remove(self.owner)
             print('You picked up a ' + self.owner.name + '!', colors.green)
  
-    def drop(self):
+    def drop(self, inventory, objects, player):
         #add to the map and remove from the player's inventory. also, place it at the player's coordinates
         objects.append(self.owner)
         inventory.remove(self.owner)
@@ -177,7 +185,7 @@ class Item:
         self.owner.y = player.y
         print('You dropped a ' + self.owner.name + '.', colors.yellow)
  
-    def use(self):
+    def use(self, inventory):
         #just call the "use_function" if it is defined
         if self.use_function is None:
             print('The ' + self.owner.name + ' cannot be used.')
