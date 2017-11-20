@@ -68,22 +68,17 @@ class Gui:
             for y in range(MAP_HEIGHT):
                 for x in range(MAP_WIDTH):
                     visible = (x, y) in self.visible_tiles
+                    t = world.my_map.my_map[x][y]
                     wall = world.my_map.my_map[x][y].block_sight
                     if not visible:
                         #if it's not visible right now, the player can only see it 
                         #if it's explored
                         if world.my_map.my_map[x][y].explored:
-                            if wall:
-                                self.con.draw_char(x, y, None, fg=None, bg=color_dark_wall)
-                            else:
-                                self.con.draw_char(x, y, None, fg=None, bg=color_dark_ground)
+                            self.con.draw_char(x, y, t.char, fg=None, bg=t.color)
                     else:
-                        if wall:
-                            self.con.draw_char(x, y, None, fg=None, bg=color_light_wall)
-                        else:
-                            self.con.draw_char(x, y, None, fg=None, bg=color_light_ground)
+                        self.con.draw_char(x, y, t.char, fg=None, bg=t.color)
                         #since it's visible, explore it
-                        world.my_map.my_map[x][y].explored = True
+                        t.explored = True
  
  
         #draw all objects in the list
