@@ -47,12 +47,12 @@ tg = {"road":TileGenerator("road",False,False,colors.sepia,"."),
       "grass":TileGenerator("grass",False,False,colors.green,"."),
       "dirt":TileGenerator("road",False,False,colors.light_sepia,"."),
       "floor":TileGenerator("floor",False,False,colors.light_gray,"."),
-      "hwall":TileGenerator("hwall",False,False,colors.white,"-"),
-      "vwall":TileGenerator("vwall",False,False,colors.white,"|"),
-      "swall":TileGenerator("swall",False,False,colors.white,"/"),
-      "bswall":TileGenerator("bswall",False,False,colors.white,"\\"),
-      "door":TileGenerator("door",False,False,colors.white,"+"),
-      "water":TileGenerator("water",False,False,colors.light_blue,"~")
+      "hwall":TileGenerator("hwall",True,False,colors.white,"-"),
+      "vwall":TileGenerator("vwall",True,True,colors.white,"|"),
+      "swall":TileGenerator("swall",True,True,colors.white,"/"),
+      "bswall":TileGenerator("bswall",True,True,colors.white,"\\"),
+      "door":TileGenerator("door",False,True,colors.white,"+"),
+      "water":TileGenerator("water",True,False,colors.light_blue,"~")
       }
 
 class Rect:
