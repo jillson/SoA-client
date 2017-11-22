@@ -101,7 +101,7 @@ class TownGenerator(BaseGenerator):
         return "rock"
 
     def getBackgroundTile(self):
-        roll = random.randint(1,20):
+        roll = random.randint(1,20)
         if roll == 1:
             return "tree"
         return "grass"

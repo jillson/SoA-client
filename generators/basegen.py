@@ -16,9 +16,9 @@ print("Reminder: set self.explored to False when done debugging")
 
 class Tile:
     """ a tile of the map and its properties """
-    def __init__(self, blocked, block_sight=None,color=None,alt_color=None,char=None):
+    def __init__(self, name, blocked, block_sight=None,color=None,alt_color=None,char=None):
         self.blocked = blocked
- 
+        self.name = name
         #all tiles start unexplored
         #debug
         self.explored = True
@@ -31,6 +31,17 @@ class Tile:
         self.color = color
         self.alt_color = alt_color
         self.char = char
+        self.attrs = {}
+    def convert(self,target):
+        newTileG = tg.get(target)
+        if newTileG:
+            newTile = newTileG.generate()
+            self.blocked = newTile.blocked
+            self.block_sight = newTile.block_sight
+            self.color = newTile.color
+            self.alt_color = newTile.alt_color
+            self.char = newTile.char
+            self.attrs = newTile.attrs
         
 
 class TileGenerator:
@@ -42,7 +53,7 @@ class TileGenerator:
         self.alt_color = alt_color
         self.char = char
     def generate(self):
-        return Tile(self.block_move,self.block_sight,
+        return Tile(self.name,self.block_move,self.block_sight,
                     self.color,self.alt_color,self.char)
 
 
@@ -105,12 +116,18 @@ class Map:
         #fill map with default_tiles
         
         self.my_map = [[ tg[default_tile].generate() for _ in range(self.height)] for _ in range(self.width)]
+
+    def refresh(self,tick):
+        pass
         
     def getWidth(self):
         return self.width
 
     def getHeight(self):
         return self.height
+
+    def getTile(self,x,y):
+        return self.my_map[x][y]
 
     def setTile(self,x,y,tileName,target=None):
         if x >= self.width or y >= self.height:

@@ -2,7 +2,7 @@
  
 import tdl
 from tcod import image_load
-from random import randint
+import random
 import colors
 import math
 import textwrap
@@ -42,6 +42,11 @@ class GameObject:
         if not self.my_map.is_blocked(self.x + dx, self.y + dy):
             self.x += dx
             self.y += dy
+
+    def getName(self):
+        if self.item and not self.item.single:
+            return "{} {}".format(self.item.amt,self.name)
+        return self.name
  
     def move_towards(self, target_x, target_y):
         #vector from this object to the target, and distance
@@ -88,6 +93,43 @@ class Player(GameObject):
                  fighter=None, ai=None, item=None):
         super(Player, self).__init__(x,y,char,name,color,my_map,blocks,fighter,ai,item)
         self.inventory = []
+        self.interactionMap = {"tree":self.chop,"rock":self.mine,"water":self.water,"plant":self.pick}
+    def handleInteraction(self,tile):
+        self.interactionMap.get(tile.name,self.default)(tile)
+    def addItem(self,item):
+        if item.item.single:
+            self.inventory.append(item)
+        else:
+            for i in self.inventory:
+                if i.name == item.name and i.item.amt < 100:
+                    i.item.amt += item.item.amt
+                    if i.item.amt > 100:
+                        item.item.amt = i.item.amt % 100
+                        i.item.amt = 100
+                    else:
+                        return
+            self.inventory.append(item)
+    def chop(self,tile):
+        print("You summon a magic axe until I implement inventory checking")
+        attack = random.randint(1,20)
+        if attack < 5:
+            print("You swing and ... miss")
+            return
+        dmg = random.randint(0,500)
+        tile.attrs["hp"] = tile.attrs.get("hp",20) - dmg
+        if tile.attrs["hp"] <= 0:
+            num = random.randint(1,3) + random.randint(1,3)
+            tile.convert("dirt")
+            self.addItem(GameObject(self.x,self.y,'W','wood',colors.dark_sepia, self, item=Item(amt=num,single=False)))
+        pass
+    def mine(self,tile):
+        pass
+    def water(self,tile):
+        pass
+    def pick(self,tile):
+        pass
+    def default(self,tile):
+        print("Bonk, you tried to walk into a ",tile.name)
 
         
 class Fighter:
@@ -153,7 +195,7 @@ class ConfusedMonster:
     def take_turn(self):
         if self.num_turns > 0:  #still confused...
             #move in a random direction, and decrease the number of turns confused
-            self.owner.move(randint(-1, 1), randint(-1, 1))
+            self.owner.move(random.randint(-1, 1), random.randint(-1, 1))
             self.num_turns -= 1
  
         else:  
@@ -164,8 +206,10 @@ class ConfusedMonster:
  
 class Item:
     #an item that can be picked up and used.
-    def __init__(self, use_function=None):
+    def __init__(self, use_function=None, single=True, amt=1):
         self.use_function = use_function
+        self.amt = amt
+        self.single = single
  
     def pick_up(self,inventory,objects):
         #add to the player's inventory and remove from the map

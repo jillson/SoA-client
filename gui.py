@@ -19,6 +19,7 @@ class Gui:
         tdl.setFPS(LIMIT_FPS)
         self.con = tdl.Console(MAP_WIDTH, MAP_HEIGHT)
         self.panel = tdl.Console(SCREEN_WIDTH, PANEL_HEIGHT)
+        self.panel2 = tdl.Console(PANEL_2_WIDTH, PANEL_2_HEIGHT)
         self.visible_tiles = []
         self.fov_recompute = True
         self.bg_img = image_load('menu_background.png')
@@ -46,7 +47,7 @@ class Gui:
                  if obj.x == x and obj.y == y and (obj.x, obj.y) in self.visible_tiles]
  
         names = ', '.join(names)  #join the names, separated by commas
-        return names.capitalize()
+        return str(self.mouse_coord) + ": " + names.capitalize()
 
     def clear_all(self,objects):
         tdl.flush()
@@ -89,17 +90,39 @@ class Gui:
         #blit the contents of "con" to the root console and present it
         self.root.blit(self.con, 0, 0, MAP_WIDTH, MAP_HEIGHT, 0, 0)
 
+        ticks = world.ticks
+        s = 6 * (ticks % 10)
+        ticks = ticks // 10
+        m = ticks % 60
+        ticks = ticks // 60
+        h = ticks % 12
+        timeMsg="%2d:%02d:%02d"%(h,m,s)
+        
+        #render right side panel
+        self.panel2.clear(fg=colors.white, bg=colors.black)
+        self.panel2.draw_str(1,1,timeMsg, bg=None, fg=colors.white)
+        #blit the contents of "panel" to the root console
+                
+        self.root.blit(self.panel2, MAP_WIDTH, 0, PANEL_2_WIDTH, PANEL_2_HEIGHT, 0, 0)
+
         #prepare to render the GUI panel
         self.panel.clear(fg=colors.white, bg=colors.black)
  
         #print the game messages, one line at a time
-        y = 1
+        y = 3
         for (line, color) in self.game_msgs:
             self.panel.draw_str(MSG_X, y, line, bg=None, fg=color)
             y += 1
  
         #show the player's stats
         self.render_bar(1, 1, BAR_WIDTH, 'HP', player.fighter.hp, player.fighter.max_hp, colors.light_red, colors.darker_red)
+
+        self.render_bar(BAR_WIDTH+5, 1, BAR_WIDTH, 'MP', 10, 20, colors.light_blue, colors.darker_blue)
+
+        self.render_bar(BAR_WIDTH * 2 +10, 1, BAR_WIDTH, 'SP', 18, 20, colors.light_grey, colors.darker_grey)
+
+        self.panel.draw_str(1, 2, "Hello World", bg=None, fg=colors.light_gray)
+        
  
         #display names of objects under the mouse
         self.panel.draw_str(1, 0, self.get_names_under_mouse(world.my_map.objects), bg=None, fg=colors.light_gray)
@@ -175,7 +198,7 @@ class Gui:
         if len(inventory) == 0:
             options = ['Inventory is empty.']
         else:
-            options = [item.name for item in inventory]
+            options = [item.getName() for item in inventory]
  
         index = self.menu(header, options, INVENTORY_WIDTH)
  

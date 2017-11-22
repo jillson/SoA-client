@@ -36,7 +36,7 @@ class Controller:
             elif choice == 2:  #quit
                 break
  
-    def player_move_or_attack(self, dx, dy):
+    def player_move_or_interact(self, dx, dy):
         """ This should probably be part of the player class """
         player = self.world.player
         #the coordinates the player is moving to/attacking
@@ -46,15 +46,25 @@ class Controller:
         #try to find an attackable object there
         target = None
         for obj in self.world.my_map.objects:
-            if obj.fighter and obj.x == x and obj.y == y:
+            if obj.x == x and obj.y == y:
                 target = obj
                 break
  
         #attack if target found, move otherwise
         if target is not None:
-            player.fighter.attack(target)
+            if obj.fighter:
+                player.fighter.attack(target)
+            else:
+                print("Need to implement interactions beyond fighting")
         else:
-            player.move(dx, dy)
+            newx = player.x + dx
+            newy = player.y + dy
+            if not self.world.my_map.is_blocked(newx,newy):
+                player.move(dx, dy)
+            else:
+                blockingTile = self.world.my_map.getTile(newx,newy)
+                print("You ran into",blockingTile.name)
+                player.handleInteraction(blockingTile)
             self.gui.fov_recompute = True
 
     def handle_keys(self):
@@ -80,16 +90,16 @@ class Controller:
         if self.game_state == 'playing':
             #movement keys
             if user_input.key == 'UP':
-                self.player_move_or_attack(0, -1)
+                self.player_move_or_interact(0, -1)
  
             elif user_input.key == 'DOWN':
-                self.player_move_or_attack(0, 1)
+                self.player_move_or_interact(0, 1)
  
             elif user_input.key == 'LEFT':
-                self.player_move_or_attack(-1, 0)
+                self.player_move_or_interact(-1, 0)
  
             elif user_input.key == 'RIGHT':
-                self.player_move_or_attack(1, 0)
+                self.player_move_or_interact(1, 0)
             else:
                 #test for other keys
                 if user_input.text == 'g':
@@ -101,14 +111,14 @@ class Controller:
  
                 if user_input.text == 'i':
                     #show the inventory; if an item is selected, use it
-                    chosen_item = inventory_menu('Press the key next to an item to ' +
+                    chosen_item = self.gui.inventory_menu('Press the key next to an item to ' +
                                                  'use it, or any other to cancel.\n',self.world.player.inventory)
                     if chosen_item is not None:
                         chosen_item.use(self.world.player.inventory)
  
                 if user_input.text == 'd':
                     #show the inventory; if an item is selected, drop it
-                    chosen_item = inventory_menu('Press the key next to an item to' + 
+                    chosen_item = self.gui.inventory_menu('Press the key next to an item to' + 
                                                  'drop it, or any other to cancel.\n',self.world.player.inventory)
                     if chosen_item is not None:
                         chosen_item.drop(self.world.player.inventory, self.world.objects, self.world.player)
@@ -223,9 +233,7 @@ class Controller:
  
             #let monsters take their turn
             if self.game_state == 'playing' and player_action != 'didnt-take-turn':
-                for obj in self.world.my_map.objects:
-                    if obj.ai:
-                        obj.ai.take_turn()
+                self.world.update()
 
 
 if __name__ == "__main__":

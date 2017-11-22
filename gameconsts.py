@@ -1,7 +1,7 @@
 
 #actual size of the window
 SCREEN_WIDTH = 100
-SCREEN_HEIGHT = 80
+SCREEN_HEIGHT = 70
  
 #size of the map
 MAP_WIDTH = 80
@@ -15,6 +15,9 @@ MSG_X = BAR_WIDTH + 2
 MSG_WIDTH = SCREEN_WIDTH - BAR_WIDTH - 2
 MSG_HEIGHT = PANEL_HEIGHT - 1
 INVENTORY_WIDTH = 50
+
+PANEL_2_WIDTH = 20
+PANEL_2_HEIGHT = 60
  
 #parameters for dungeon generator
 ROOM_MAX_SIZE = 10
