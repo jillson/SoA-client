@@ -74,7 +74,7 @@ class Gui:
                         #if it's not visible right now, the player can only see it 
                         #if it's explored
                         if world.my_map.my_map[x][y].explored:
-                            self.con.draw_char(x, y, t.char, fg=None, bg=t.color)
+                            self.con.draw_char(x, y, t.char, fg=None, bg=t.alt_color)
                     else:
                         self.con.draw_char(x, y, t.char, fg=None, bg=t.color)
                         #since it's visible, explore it

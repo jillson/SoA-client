@@ -24,6 +24,6 @@ class World:
         #create object representing the player
         fighter_component = Fighter(hp=30, defense=2, power=5, 
                                 death_function=player_death)
-        self.player = Player(0, 0, '@', 'player', colors.white, self.my_map, blocks=True, fighter=fighter_component)
+        self.player = Player(10, 10, '@', 'player', colors.white, self.my_map, blocks=True, fighter=fighter_component)
         self.my_map.player = self.player
         self.my_map.objects.append(self.player)

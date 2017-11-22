@@ -12,14 +12,16 @@ from gameconsts import *
 
 from objects import *
 
+print("Reminder: set self.explored to False when done debugging")
 
 class Tile:
     """ a tile of the map and its properties """
-    def __init__(self, blocked, block_sight=None,color=None,char=None):
+    def __init__(self, blocked, block_sight=None,color=None,alt_color=None,char=None):
         self.blocked = blocked
  
         #all tiles start unexplored
-        self.explored = False
+        #debug
+        self.explored = True
  
         #by default, if a tile is blocked, it also blocks sight
         if block_sight is None: 
@@ -27,32 +29,38 @@ class Tile:
         self.block_sight = block_sight
 
         self.color = color
+        self.alt_color = alt_color
         self.char = char
         
 
 class TileGenerator:
-    def __init__(self,name,block_move,block_sight,color,char):
+    def __init__(self,name,block_move,block_sight,color,alt_color,char):
         self.name = name
         self.block_move = block_move
         self.block_sight = block_sight
         self.color = color
+        self.alt_color = alt_color
         self.char = char
     def generate(self):
         return Tile(self.block_move,self.block_sight,
-                    self.color,self.char)
+                    self.color,self.alt_color,self.char)
 
 
 
-tg = {"road":TileGenerator("road",False,False,colors.sepia,"."),
-      "grass":TileGenerator("grass",False,False,colors.green,"."),
-      "dirt":TileGenerator("road",False,False,colors.light_sepia,"."),
-      "floor":TileGenerator("floor",False,False,colors.light_gray,"."),
-      "hwall":TileGenerator("hwall",True,False,colors.white,"-"),
-      "vwall":TileGenerator("vwall",True,True,colors.white,"|"),
-      "swall":TileGenerator("swall",True,True,colors.white,"/"),
-      "bswall":TileGenerator("bswall",True,True,colors.white,"\\"),
-      "door":TileGenerator("door",False,True,colors.white,"+"),
-      "water":TileGenerator("water",True,False,colors.light_blue,"~")
+tg = {"road":TileGenerator("road",False,False,colors.sepia,colors.light_sepia,"."),
+      "sand":TileGenerator("sand",False,False,colors.lighter_sepia,colors.lightest_sepia,"."),
+      "grass":TileGenerator("grass",False,False,colors.green,colors.light_green,"."),
+      "dirt":TileGenerator("road",False,False,colors.light_sepia,colors.lighter_sepia,"."),
+      "floor":TileGenerator("floor",False,False,colors.light_gray,colors.lighter_gray,"."),
+      "hwall":TileGenerator("hwall",True,False,colors.white,colors.lightest_grey,"-"),
+      "vwall":TileGenerator("vwall",True,True,colors.white,colors.lightest_grey,"|"),
+      "swall":TileGenerator("swall",True,True,colors.white,colors.lightest_grey,"/"),
+      "bswall":TileGenerator("bswall",True,True,colors.white,colors.lightest_grey,"\\"),
+      "door":TileGenerator("door",False,True,colors.light_grey,colors.lightest_grey,"+"),
+      "water":TileGenerator("water",True,False,colors.light_blue,colors.lighter_blue,"~"),
+      "fence":TileGenerator("fence",True,True,colors.dark_sepia,colors.darker_sepia,"="),
+      "rock":TileGenerator("rock",True,True,colors.dark_grey,colors.darker_grey,"."),
+      "tree":TileGenerator("tree",True,True,colors.dark_green,colors.darker_sepia,"T"),
       }
 
 class Rect:
@@ -76,12 +84,12 @@ class Rect:
 class Building:
     def __init__(self,name,meanW,meanH):
         self.name = name
-        offsetW = meanW // 4
-        if offsetW > 0:
-            meanW += randint(0,2*meanW)-meanW
-        offsetH = meanH // 4
-        if offsetH > 0:
-            meanH += randint(0,2*meanH)-meanH
+        #offsetW = meanW // 4
+        #if offsetW > 0:
+        #    meanW += randint(0,2*meanW)-meanW
+        #offsetH = meanH // 4
+        #if offsetH > 0:
+        #    meanH += randint(0,2*meanH)-meanH
         self.width = meanW
         self.height = meanH
 
@@ -134,9 +142,7 @@ class Map:
             return False
         elif y >= self.height or y < 0:
             return False
-        elif self.my_map[x][y].blocked == True:
-            return False
-        elif self.my_map[x][y].block_sight == True:
+        elif self.my_map[x][y].block_sight:
             return False
         else:
             return True

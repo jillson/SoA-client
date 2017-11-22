@@ -21,8 +21,6 @@ from objects import *
 class Controller:
     def __init__(self):
         self.gui = Gui()
-        self.world = World()
-        
         while not tdl.event.is_window_closed():
             choice = self.gui.main_menu()
             if choice == 0:  #new game
@@ -197,12 +195,12 @@ class Controller:
             game_state = savefile['game_state']
  
     def new_game(self):
-        world = World()
-        world.my_map.con = self.gui.con
+        self.world = World()
+        self.world.my_map.con = self.gui.con
         print("Reminder: my_map shouldn't have con... should be called by controller passing in con or some other way")
         self.game_state = 'playing'
          #a warm welcoming message!
-        self.gui.message('Welcome stranger! Prepare to perish in the Tombs of the Ancient Kings.', colors.red)
+        self.gui.message('You celebrate your 9th birthday by enrolling in the [Insert Town Name] School for Adventure.', colors.blue)
  
     def play_game(self):
         player_action = None

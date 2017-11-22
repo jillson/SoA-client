@@ -1,11 +1,11 @@
 
 #actual size of the window
-SCREEN_WIDTH = 80
-SCREEN_HEIGHT = 50
+SCREEN_WIDTH = 100
+SCREEN_HEIGHT = 80
  
 #size of the map
 MAP_WIDTH = 80
-MAP_HEIGHT = 43
+MAP_HEIGHT = 60
  
 #sizes and coordinates relevant for the GUI
 BAR_WIDTH = 20
@@ -35,6 +35,8 @@ FIREBALL_DAMAGE = 12
  
 FOV_ALGO = 'BASIC'
 FOV_LIGHT_WALLS = True
+TORCH_RADIUS = 10
+
 TORCH_RADIUS = 10
  
 LIMIT_FPS = 20  #20 frames-per-second maximum
