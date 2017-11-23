@@ -1,35 +1,45 @@
 #!/usr/bin/env python3
 from __future__ import division
 
-import tdl
 import tcod
 import random 
-import colors
-import math
-import textwrap
-import shelve
 
 from gameconsts import *
 
 from objects import *
 
-from generators.basegen import Rect, Building, Map
+from generators.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict
 
-class BaseGenerator:
-    def __init__(self,stuff=None):
-        pass
-    
-    def create_h_tunnel(self, x1, x2, y,tile="road"):
-        """ creates horizontal tunnel from x1 to x2 """
-        for x in range(min(x1, x2), max(x1, x2) + 1):
-            self.my_map.setTile(x,y,tile)
- 
-    def create_v_tunnel(self, y1, y2, x, tile="road"):
-        """ creates vertical tunnel from y1 to y2 """
-        for y in range(min(y1, y2), max(y1, y2) + 1):
-            self.my_map.setTile(x,y,tile)
 
-    
+class SchoolGenerator(BaseGenerator):
+    def __init__(self):
+        super(SchoolGenerator,self).__init__()
+
+    def generate_map(self,name="school1"):
+        print("Generating {}".format(name))
+        if name == "school1":
+            if mapDict.get("school1"):
+                print("Warning, not sure how/why we generated this multiple times")
+                return mapDict.get(name)
+            self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile="floor")
+        
+            self.my_map.setTile(5,5,"stairUp",target=MapSwitch(targetName="school3",generator=self))
+            self.my_map.startX = 10
+            self.my_map.startY = 10
+            mapDict[name] = self.my_map
+        else:
+            m = mapDict.get(name)
+            if m:
+                return m
+            level = int(name[len("school"):])
+            self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile="floor")
+        
+            self.my_map.setTile(5,5,"stairDown",target=MapSwitch(targetName="school1",generator=self))
+            self.my_map.startX = 10
+            self.my_map.startY = 10
+            mapDict[name] = self.my_map
+                
+        return self.my_map
 
 class TownGenerator(BaseGenerator):
     def __init__(self):
@@ -45,6 +55,8 @@ class TownGenerator(BaseGenerator):
         #TODO: name the roads using another generator (or q&d hack that glues way/street/drive/etc. to other names?)
         
         self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile="grass")
+        self.my_map.startX = 27
+        self.my_map.startY = 31
         print("Breaking without changing default_tile to use a generator")
         self.my_map.name = tcod.namegen_generate("mingos towns")
         self.rects = []

@@ -53,19 +53,22 @@ class Controller:
         #attack if target found, move otherwise
         if target is not None:
             if obj.fighter:
-                player.fighter.attack(target)
-            else:
-                print("Need to implement interactions beyond fighting")
-        else:
-            newx = player.x + dx
-            newy = player.y + dy
-            if not self.world.my_map.is_blocked(newx,newy):
-                player.move(dx, dy)
-            else:
-                blockingTile = self.world.my_map.getTile(newx,newy)
-                print("You ran into",blockingTile.name)
-                player.handleInteraction(blockingTile)
+                return player.fighter.attack(target)
+
+        newx = player.x + dx
+        newy = player.y + dy
+        if not self.world.my_map.is_blocked(newx,newy):
+            event = player.move(dx, dy)
+            if event and event.type == "teleport":
+                self.world.my_map = event.map
+                if player not in event.map.objects:
+                    event.map.objects.append(player)
             self.gui.fov_recompute = True
+        else:
+            blockingTile = self.world.my_map.getTile(newx,newy)
+            print("You ran into",blockingTile.name)
+            player.handleInteraction(blockingTile)
+        
 
     def handle_keys(self):
         player = self.world.player
@@ -86,6 +89,10 @@ class Controller:
  
         elif user_input.key == 'ESCAPE':
             return 'exit'  #exit game
+
+        elif user_input.text == '~':
+            import pdb
+            pdb.set_trace()
  
         if self.game_state == 'playing':
             #movement keys
@@ -106,7 +113,7 @@ class Controller:
                     #pick up an item
                     for obj in self.world.my_map.objects:  #look for an item in the player's tile
                         if obj.x == player.x and obj.y == player.y and obj.item:
-                            obj.item.pick_up(self.world.player.inventory, self.world.objects)
+                            obj.item.pick_up(self.world.player.inventory, self.world.my_map.objects)
                             break
  
                 if user_input.text == 'i':
@@ -233,7 +240,7 @@ class Controller:
  
             #let monsters take their turn
             if self.game_state == 'playing' and player_action != 'didnt-take-turn':
-                self.world.update()
+                self.world.update(self.gui.visible_tiles)
 
 
 if __name__ == "__main__":

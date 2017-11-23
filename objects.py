@@ -9,8 +9,6 @@ import textwrap
 import shelve
 
 from gameconsts import *
-
-visible_tiles = []
  
 class GameObject:
     #this is a generic object: the player, a monster, an item, the stairs...
@@ -96,6 +94,14 @@ class Player(GameObject):
         self.interactionMap = {"tree":self.chop,"rock":self.mine,"water":self.water,"plant":self.pick}
     def handleInteraction(self,tile):
         self.interactionMap.get(tile.name,self.default)(tile)
+
+    def move(self, dx, dy):
+        #move by the given amount, if the destination is not blocked
+        if not self.my_map.is_blocked(self.x + dx, self.y + dy):
+            self.x += dx
+            self.y += dy
+            return self.my_map.enterSpace(self)
+
     def addItem(self,item):
         if item.item.single:
             self.inventory.append(item)
@@ -173,7 +179,7 @@ class Fighter:
  
 class BasicMonster:
     #AI for a basic monster.
-    def take_turn(self):
+    def take_turn(self, visible_tiles, player):
         #a basic monster takes its turn. If you can see it, it can see you
         monster = self.owner
         if (monster.x, monster.y) in visible_tiles:

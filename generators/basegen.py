@@ -14,6 +14,48 @@ from objects import *
 
 print("Reminder: set self.explored to False when done debugging")
 
+mapDict = {}
+
+class MapSwitch:
+    def __init__(self,targetName=None,generator=None,startX=None,startY=None):
+        self.targetName = targetName
+        self.generator = generator
+        self.startX = startX
+        self.startY = startY
+    def switch(self):
+        print("Switching to",self.targetName)
+        if self.targetName and mapDict.get(self.targetName):
+            tMap =  mapDict[self.targetName]
+        else:
+            if self.generator:
+                tMap = self.generator.generate_map(self.targetName)
+                if self.targetName:
+                    mapDict[self.targetName] = tMap
+                    
+        if self.startX == None:
+            self.startX = tMap.startX
+        if self.startY == None:
+            self.startY = tMap.startY
+        return tMap,self.startX,self.startY
+
+class BaseGenerator:
+    def __init__(self,stuff=None):
+        pass
+    
+    def create_h_tunnel(self, x1, x2, y,tile="road",clear=None):
+        """ creates horizontal tunnel from x1 to x2 """
+        for x in range(min(x1, x2), max(x1, x2) + 1):
+            if not clear or self.my_map.getTile(x,y).name == clear:
+                self.my_map.setTile(x,y,tile)
+ 
+    def create_v_tunnel(self, y1, y2, x, tile="road",clear=None):
+        """ creates vertical tunnel from y1 to y2 """
+        for y in range(min(y1, y2), max(y1, y2) + 1):
+            if not clear or self.my_map.getTile(x,y).name == clear:
+                print("Changing tile from {}({}) to {}".format(self.my_map.getTile(x,y).name,clear,tile))
+                self.my_map.setTile(x,y,tile)
+
+
 class Tile:
     """ a tile of the map and its properties """
     def __init__(self, name, blocked, block_sight=None,color=None,alt_color=None,char=None):
@@ -32,6 +74,7 @@ class Tile:
         self.alt_color = alt_color
         self.char = char
         self.attrs = {}
+        self.target = None
     def convert(self,target):
         newTileG = tg.get(target)
         if newTileG:
@@ -42,6 +85,7 @@ class Tile:
             self.alt_color = newTile.alt_color
             self.char = newTile.char
             self.attrs = newTile.attrs
+            self.target = newTile.target
         
 
 class TileGenerator:
@@ -63,12 +107,15 @@ tg = {"road":TileGenerator("road",False,False,colors.sepia,colors.light_sepia,".
       "grass":TileGenerator("grass",False,False,colors.green,colors.light_green,"."),
       "dirt":TileGenerator("road",False,False,colors.light_sepia,colors.lighter_sepia,"."),
       "floor":TileGenerator("floor",False,False,colors.light_gray,colors.lighter_gray,"."),
+      "stairUp":TileGenerator("stairUp",False,False,colors.light_gray,colors.lighter_gray,">"),
+      "stairDown":TileGenerator("stairDown",False,False,colors.light_gray,colors.lighter_gray,"<"),
       "hwall":TileGenerator("hwall",True,False,colors.white,colors.lightest_grey,"-"),
       "vwall":TileGenerator("vwall",True,True,colors.white,colors.lightest_grey,"|"),
       "swall":TileGenerator("swall",True,True,colors.white,colors.lightest_grey,"/"),
       "bswall":TileGenerator("bswall",True,True,colors.white,colors.lightest_grey,"\\"),
       "door":TileGenerator("door",False,True,colors.light_grey,colors.lightest_grey,"+"),
       "water":TileGenerator("water",True,False,colors.light_blue,colors.lighter_blue,"~"),
+      "air":TileGenerator("air",True,False,colors.lightest_grey,colors.white," "),
       "fence":TileGenerator("fence",True,True,colors.dark_sepia,colors.darker_sepia,"="),
       "rock":TileGenerator("rock",True,True,colors.dark_grey,colors.darker_grey,"."),
       "tree":TileGenerator("tree",True,True,colors.dark_green,colors.darker_sepia,"T"),
@@ -104,6 +151,9 @@ class Building:
         self.width = meanW
         self.height = meanH
 
+class Event:
+    def __init__(self,type):
+        self.type = type
 
 #TODO: pass in objects to start on map?
 class Map:
@@ -116,6 +166,21 @@ class Map:
         #fill map with default_tiles
         
         self.my_map = [[ tg[default_tile].generate() for _ in range(self.height)] for _ in range(self.width)]
+
+    def enterSpace(self,obj):
+        x,y=obj.x,obj.y
+        tile = self.my_map[x][y]
+        if tile.target:
+            if obj in self.objects:
+                self.objects.remove(obj)
+            newMap,newX,newY = tile.target.switch()
+            obj.x = newX
+            obj.y = newY
+            obj.my_map = newMap
+            e = Event(type="teleport")
+            e.map = newMap
+            return e
+            
 
     def refresh(self,tick):
         pass
