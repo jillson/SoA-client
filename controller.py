@@ -123,7 +123,7 @@ class Controller:
                     chosen_item = self.gui.inventory_menu('Press the key next to an item to ' +
                                                  'use it, or any other to cancel.\n',self.world.player.inventory)
                     if chosen_item is not None:
-                        chosen_item.use(self.world.player.inventory)
+                        chosen_item.use(self.world.player, self.world.player.inventory)
  
                 if user_input.text == 'd':
                     #show the inventory; if an item is selected, drop it

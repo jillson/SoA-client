@@ -17,21 +17,25 @@ print("Reminder: set self.explored to False when done debugging")
 mapDict = {}
 
 class MapSwitch:
-    def __init__(self,targetName=None,generator=None,startX=None,startY=None):
+    def __init__(self,targetName=None,generator=None,startX=None,startY=None,oldLoc=None):
         self.targetName = targetName
         self.generator = generator
         self.startX = startX
         self.startY = startY
+        self.oldLoc = oldLoc
     def switch(self):
         print("Switching to",self.targetName)
+        tMap = None
         if self.targetName and mapDict.get(self.targetName):
             tMap =  mapDict[self.targetName]
         else:
             if self.generator:
-                tMap = self.generator.generate_map(self.targetName)
+                tMap = self.generator.generate_map(self.targetName,self.oldLoc)
                 if self.targetName:
                     mapDict[self.targetName] = tMap
-                    
+        if not tMap:
+            print("Warning, couldn't find {}".format(self.targetName))
+            return None,0,0
         if self.startX == None:
             self.startX = tMap.startX
         if self.startY == None:

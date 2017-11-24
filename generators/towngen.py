@@ -15,7 +15,7 @@ class SchoolGenerator(BaseGenerator):
     def __init__(self):
         super(SchoolGenerator,self).__init__()
 
-    def generate_map(self,name="school1"):
+    def generate_map(self,name="school1",oldLoc=None):
         if mapDict.get(name):
             return mapDict[name]
 
@@ -40,7 +40,7 @@ class SchoolGenerator(BaseGenerator):
             self.create_v_tunnel(8,40,3,tile="vwall")
             self.create_v_tunnel(8,40,57,tile="vwall")
             self.my_map.setTile(30,47,"door",target=MapSwitch(targetName="town",startX=36,startY=24))
-            self.my_map.setTile(30,45,"stairDown",target=MapSwitch(targetName="dungeon1")
+            self.my_map.setTile(30,45,"stairDown",target=MapSwitch(targetName="dungeon1",oldLoc=(30,45)))
         if level == 2:
             self.create_h_tunnel(10,50,4,tile="floor")
             self.create_h_tunnel(10,50,42,tile="floor")
@@ -60,7 +60,6 @@ class SchoolGenerator(BaseGenerator):
         if level > 2:
             return
 
-        #for x,y in [(3,3),(51,3),(3,41),(51,41)]:
         if x > 20: # right side
             self.my_map.setTile(x,y+1,"door")
             if y > 20:
@@ -79,7 +78,7 @@ class TownGenerator(BaseGenerator):
     def __init__(self):
         super(TownGenerator,self).__init__()
 
-    def generate_map(self):
+    def generate_map(self,name="town",oldLoc=None):
         """ For now, we generate a town where the school is at the top
             underneath there's a row of buildings
             underneath that there's a more compact row of houses

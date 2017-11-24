@@ -8,18 +8,23 @@ from gameconsts import *
 
 from objects import *
 
-from generators.basegen import Rect, Building, Map, BaseGenerator
+from generators.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict
 
 class DungeonGenerator(BaseGenerator):
     def __init__(self):
         super(DungeonGenerator,self).__init__()
 
-    def generate_map(self):
+    def generate_map(self,name="dungeon1",oldLoc=None):
 
+        if mapDict.get(name):
+            return mapDict[name]
+        
         self.my_map = Map(width=MAP_WIDTH, height=MAP_HEIGHT, default_tile="rock")
         rooms = []
         num_rooms = 0
- 
+
+        level = int(name[len("dungeon"):])
+        
         for r in range(MAX_ROOMS):
             #random width and height
             w = random.randint(ROOM_MIN_SIZE, ROOM_MAX_SIZE)
@@ -51,7 +56,14 @@ class DungeonGenerator(BaseGenerator):
                     #this is the first room, where the player starts at
                     self.my_map.startX = new_x
                     self.my_map.startY = new_y
+                    if level == 1:
+                        self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="school1",oldLoc=oldLoc))
+                    else:
+                        self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="dungeon{}".format(level-1),oldLoc=oldLoc))
                 else:
+                    if num_rooms == 1:
+                        #second room means will go down
+                        self.my_map.setTile(new_x+1,new_y,"stairDown",target=MapSwitch(targetName="dungeon{}".format(level+1),oldLoc=(self.my_map.startX+1,self.my_map.startY),generator=self))
                     #all rooms after the first:
                     #connect it to the previous room with a tunnel
                     
@@ -68,14 +80,19 @@ class DungeonGenerator(BaseGenerator):
                         self.create_v_tunnel(prev_y, new_y, prev_x, clear="rock")
                         self.create_h_tunnel(prev_x, new_x, new_y, clear="rock")
  
-                #add some contents to this room, such as monsters
-                self.place_objects(new_room)
+                    #add some contents to this room, such as monsters
+                    self.place_objects(new_room)
  
                 #finally, append the new room to the list
                 rooms.append(new_room)
                 num_rooms += 1
+        if True or num_rooms == 1:
+            print("Hmm... we only have one room because of unlikely events or debugging")
+            self.my_map.setTile(new_x+1,new_y,"stairDown",target=MapSwitch(targetName="dungeon{}".format(level+1),oldLoc=(self.my_map.startX+1,self.my_map.startY),generator=self))
         self.my_map.rooms = rooms
         self.my_map.num_rooms = num_rooms
+
+        mapDict[name] = self.my_map
         return self.my_map
  
     def create_room(self, room):

@@ -6,6 +6,7 @@ import tcod
 from random import randint
 import colors
 
+from generators.basegen import mapDict
 from generators.towngen import TownGenerator, SchoolGenerator
 from generators.dungen import DungeonGenerator
 from objects import *
@@ -20,14 +21,10 @@ def load_name_generators():
 class World:
     def __init__(self):
         load_name_generators()
-        self.town_generator = TownGenerator()
-        self.my_map = self.town_generator.generate_map()
-        sg = SchoolGenerator()
-        school_map = sg.generate_map()
-        dg = DungeonGenerator()
-        dungeon_map = dg.generate_map()
-        self.maps = {"town":self.my_map,"school":school_map,"dungeon":dungeon_map}
-        self.my_map = school_map
+        mapDict["town"] = TownGenerator()
+        self.my_map = mapDict["town"].generate_map()
+        mapDict["school1"] = SchoolGenerator().generate_map()
+        mapDict["dungeon1"] = DungeonGenerator().generate_map()
         #create object representing the player
         fighter_component = Fighter(hp=30, defense=2, power=5, 
                                 death_function=player_death)

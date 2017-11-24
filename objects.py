@@ -235,12 +235,12 @@ class Item:
         self.owner.y = player.y
         print('You dropped a ' + self.owner.name + '.', colors.yellow)
  
-    def use(self, inventory):
+    def use(self, user, inventory):
         #just call the "use_function" if it is defined
         if self.use_function is None:
             print('The ' + self.owner.name + ' cannot be used.')
         else:
-            if self.use_function() != 'cancelled':
+            if self.use_function(user) != 'cancelled':
                 inventory.remove(self.owner)  #destroy after use, unless it was 
                                               #cancelled for some reason
  
@@ -267,7 +267,7 @@ def monster_death(monster):
     monster.send_to_back()
  
  
-def cast_heal():
+def cast_heal(player):
     #heal the player
     if player.fighter.hp == player.fighter.max_hp:
         print('You are already at full health.', colors.red)
@@ -276,7 +276,7 @@ def cast_heal():
     print('Your wounds start to feel better!', colors.light_violet)
     player.fighter.heal(HEAL_AMOUNT)
  
-def cast_lightning():
+def cast_lightning(player):
     #find closest enemy (inside a maximum range) and damage it
     monster = closest_monster(LIGHTNING_RANGE)
     if monster is None:  #no enemy found within maximum range
@@ -290,7 +290,7 @@ def cast_lightning():
  
     monster.fighter.take_damage(LIGHTNING_DAMAGE)
  
-def cast_confuse():
+def cast_confuse(player):
     #ask the player for a target to confuse
     print('Left-click an enemy to confuse it, or right-click to cancel.', 
             colors.light_cyan)
@@ -307,7 +307,7 @@ def cast_confuse():
     print('The eyes of the ' + monster.name + ' look vacant, as he starts to ' +
             'stumble around!', colors.light_green)
  
-def cast_fireball():
+def cast_fireball(player):
     #ask the player for a target tile to throw a fireball at
     print('Left-click a target tile for the fireball, or right-click to ' +
             'cancel.', colors.light_cyan)
