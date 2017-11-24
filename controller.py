@@ -22,10 +22,12 @@ class Controller:
     def __init__(self):
         self.gui = Gui()
         while not tdl.event.is_window_closed():
-            choice = self.gui.main_menu()
+            choice = 0
+            #choice = self.gui.main_menu()
             if choice == 0:  #new game
                 self.new_game()
                 self.play_game()
+                break
             if choice == 1:  #load last game
                 try:
                     self.load_game()
@@ -235,7 +237,7 @@ class Controller:
             #handle keys and exit game if needed
             player_action = self.handle_keys()
             if player_action == 'exit':
-                save_game()
+                #save_game()
                 break
  
             #let monsters take their turn

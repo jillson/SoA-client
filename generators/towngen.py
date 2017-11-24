@@ -16,30 +16,64 @@ class SchoolGenerator(BaseGenerator):
         super(SchoolGenerator,self).__init__()
 
     def generate_map(self,name="school1"):
-        print("Generating {}".format(name))
+        if mapDict.get(name):
+            return mapDict[name]
+
+        level = int(name[len("school"):])
+
         if name == "school1":
-            if mapDict.get("school1"):
-                print("Warning, not sure how/why we generated this multiple times")
-                return mapDict.get(name)
-            self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile="floor")
-        
-            self.my_map.setTile(5,5,"stairUp",target=MapSwitch(targetName="school3",generator=self))
-            self.my_map.startX = 10
-            self.my_map.startY = 10
-            mapDict[name] = self.my_map
+            dtile = "floor"
         else:
-            m = mapDict.get(name)
-            if m:
-                return m
-            level = int(name[len("school"):])
-            self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile="floor")
+            dtile = "air"
+            
+        self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile=dtile)
+        self.my_map.startX = 30
+        self.my_map.startY = 46
+        cnt = 1
+        for x,y in [(3,3),(51,3),(3,41),(51,41)]:
+            self.draw_tower(x,y,level,cnt)
+            cnt += 1
+
+        if level == 1:
+            self.create_h_tunnel(10,50,3,tile="hwall")
+            self.create_h_tunnel(10,50,47,tile="hwall")
+            self.create_v_tunnel(8,40,3,tile="vwall")
+            self.create_v_tunnel(8,40,57,tile="vwall")
+            self.my_map.setTile(30,47,"door",target=MapSwitch(targetName="town",startX=36,startY=24))
+            self.my_map.setTile(30,45,"stairDown",target=MapSwitch(targetName="dungeon1")
+        if level == 2:
+            self.create_h_tunnel(10,50,4,tile="floor")
+            self.create_h_tunnel(10,50,42,tile="floor")
+            self.create_v_tunnel(4,40,4,tile="floor")
+            self.create_v_tunnel(4,40,56,tile="floor")
+            
+        mapDict[name] = self.my_map
         
-            self.my_map.setTile(5,5,"stairDown",target=MapSwitch(targetName="school1",generator=self))
-            self.my_map.startX = 10
-            self.my_map.startY = 10
-            mapDict[name] = self.my_map
-                
         return self.my_map
+    def draw_tower(self,x,y,level,cnt):
+        b = Building("tower{}".format(cnt),7,7)
+        self.drawRoom(x,y,b)
+        if level < 3:
+            self.my_map.setTile(x+4,y+3,"stairUp",target=MapSwitch(targetName="school{}".format(level+1),generator=self,startX=x+4,startY=y+4))
+        if level > 1:
+            self.my_map.setTile(x+4,y+4,"stairDown",target=MapSwitch(targetName="school{}".format(level-1),generator=self,startX=x+4,startY=y+4))
+        if level > 2:
+            return
+
+        #for x,y in [(3,3),(51,3),(3,41),(51,41)]:
+        if x > 20: # right side
+            self.my_map.setTile(x,y+1,"door")
+            if y > 20:
+                self.my_map.setTile(x+5,y,"door")
+            else:
+                self.my_map.setTile(x+5,y+6,"door")
+        else:
+            self.my_map.setTile(x+6,y+1,"door")
+            if y > 20:
+                self.my_map.setTile(x+1,y,"door")
+            else:
+                self.my_map.setTile(x+1,y+6,"door")
+             
 
 class TownGenerator(BaseGenerator):
     def __init__(self):
@@ -80,6 +114,7 @@ class TownGenerator(BaseGenerator):
         self.placeForest()
         
         self.placeBoundary()
+        mapDict["town"]=self.my_map
         
         return self.my_map
 
@@ -193,8 +228,8 @@ class TownGenerator(BaseGenerator):
         self.rects.append(Rect(x,y,school.width,school.height))
 
         self.drawRoom(x,y,school)
-        doorX = x+random.randint(school.width//4,school.width//2) 
-        self.my_map.setTile(doorX,y+school.height-1,"door",target="school_map")
+        doorX = x+school.width//3
+        self.my_map.setTile(doorX,y+school.height-1,"door",target=MapSwitch(targetName="school1"))
 
         self.my_map.setTile(doorX,y+school.height,"road")
         startX -= 4
@@ -207,23 +242,6 @@ class TownGenerator(BaseGenerator):
             self.my_map.setTile(startX+37,4+yOff,"road")
             
         
-    def drawRoom(self,x,y,building):
-        for offset in range(building.width-2):
-            self.my_map.setTile(x+offset+1,y,"hwall")
-            self.my_map.setTile(x+offset+1,y+building.height-1,"hwall")
-
-        for offset in range(building.height-2):
-            self.my_map.setTile(x,y+offset+1,"vwall")
-            self.my_map.setTile(x+building.width-1,y+offset+1,"vwall")
-
-        for x_off in range(building.width-2):
-            for y_off in range(building.height-2):
-                self.my_map.setTile(x+1+x_off,y+1+y_off,"floor")
-
-        self.my_map.setTile(x,y,"swall")
-        self.my_map.setTile(x+building.width-1,y,"bswall")
-        self.my_map.setTile(x+building.width-1,y+building.height-1,"swall")
-        self.my_map.setTile(x,y+building.height-1,"bswall")
- 
+  
 
  

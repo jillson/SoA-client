@@ -41,6 +41,25 @@ class MapSwitch:
 class BaseGenerator:
     def __init__(self,stuff=None):
         pass
+
+    def drawRoom(self,x,y,building):
+        for offset in range(building.width-2):
+            self.my_map.setTile(x+offset+1,y,"hwall")
+            self.my_map.setTile(x+offset+1,y+building.height-1,"hwall")
+
+        for offset in range(building.height-2):
+            self.my_map.setTile(x,y+offset+1,"vwall")
+            self.my_map.setTile(x+building.width-1,y+offset+1,"vwall")
+
+        for x_off in range(building.width-2):
+            for y_off in range(building.height-2):
+                self.my_map.setTile(x+1+x_off,y+1+y_off,"floor")
+
+        self.my_map.setTile(x,y,"swall")
+        self.my_map.setTile(x+building.width-1,y,"bswall")
+        self.my_map.setTile(x+building.width-1,y+building.height-1,"swall")
+        self.my_map.setTile(x,y+building.height-1,"bswall")
+ 
     
     def create_h_tunnel(self, x1, x2, y,tile="road",clear=None):
         """ creates horizontal tunnel from x1 to x2 """
@@ -52,7 +71,6 @@ class BaseGenerator:
         """ creates vertical tunnel from y1 to y2 """
         for y in range(min(y1, y2), max(y1, y2) + 1):
             if not clear or self.my_map.getTile(x,y).name == clear:
-                print("Changing tile from {}({}) to {}".format(self.my_map.getTile(x,y).name,clear,tile))
                 self.my_map.setTile(x,y,tile)
 
 
@@ -115,7 +133,7 @@ tg = {"road":TileGenerator("road",False,False,colors.sepia,colors.light_sepia,".
       "bswall":TileGenerator("bswall",True,True,colors.white,colors.lightest_grey,"\\"),
       "door":TileGenerator("door",False,True,colors.light_grey,colors.lightest_grey,"+"),
       "water":TileGenerator("water",True,False,colors.light_blue,colors.lighter_blue,"~"),
-      "air":TileGenerator("air",True,False,colors.lightest_grey,colors.white," "),
+      "air":TileGenerator("air",True,False,colors.lightest_blue,colors.lighter_blue," "),
       "fence":TileGenerator("fence",True,True,colors.dark_sepia,colors.darker_sepia,"="),
       "rock":TileGenerator("rock",True,True,colors.dark_grey,colors.darker_grey,"."),
       "tree":TileGenerator("tree",True,True,colors.dark_green,colors.darker_sepia,"T"),
