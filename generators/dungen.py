@@ -8,7 +8,7 @@ from gameconsts import *
 
 from objects import *
 
-from generators.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict
+from generators.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict, Action
 
 class DungeonGenerator(BaseGenerator):
     def __init__(self):
@@ -59,6 +59,7 @@ class DungeonGenerator(BaseGenerator):
                     self.my_map.startY = new_y
                     if level == 1:
                         self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="school1"))
+                        self.my_map.setTile(new_x,new_y+2,"rune",action=Action(checkpointCheck))
                     else:
                         self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="dungeon{}".format(level-1)))
                 else:

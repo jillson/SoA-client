@@ -16,6 +16,7 @@ print("Reminder: set self.explored to False when done debugging")
 
 mapDict = {}
 
+
 class MapSwitch:
     def __init__(self,targetName=None,generator=None,startX=None,startY=None):
         self.targetName = targetName
@@ -174,9 +175,7 @@ class Building:
         self.width = meanW
         self.height = meanH
 
-class Event:
-    def __init__(self,type):
-        self.type = type
+
 
 #TODO: pass in objects to start on map?
 class Map:
@@ -222,7 +221,7 @@ class Map:
     def getTile(self,x,y):
         return self.my_map[x][y]
 
-    def setTile(self,x,y,tileName,target=None):
+    def setTile(self,x,y,tileName,target=None,action=None):
         if x >= self.width or y >= self.height:
             print("Need to make {} < {} or {} < {}".format(x,self.width,y,self.height))
         t = tg.get(tileName)
@@ -232,6 +231,7 @@ class Map:
         try :
             self.my_map[x][y] = t.generate()
             self.my_map[x][y].target = target
+            self.my_map[x][y].action = action
         except:
             import pdb
             pdb.set_trace()

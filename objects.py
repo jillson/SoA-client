@@ -9,6 +9,27 @@ import textwrap
 import shelve
 
 from gameconsts import *
+
+
+class Action:
+    def __init__(self,action):
+        self._action = action
+    def run(self,*args):
+        return self._action(*args)
+
+class Event:
+    def __init__(self,type):
+        self.type = type
+    
+
+def checkpointCheck(player,gui):
+    if player.checkPoints:
+        header = "Select a checkpoint to start at"
+    else:
+        header = "You have no checkpoints yet; go find some"
+    choice = gui.menu(header,["cancel"]+list(player.checkPoints.keys()),INVENTORY_WIDTH)
+    print("Would check for checkpoints etc. but need to change how things work")
+    return choice
  
 class GameObject:
     #this is a generic object: the player, a monster, an item, the stairs...
@@ -93,6 +114,7 @@ class Player(GameObject):
         self.inventory = []
         self.interactionMap = {"tree":self.chop,"rock":self.mine,"water":self.water,"plant":self.pick}
         self.previous = {}
+        self.checkPoints = {}
     def handleInteraction(self,tile):
         self.interactionMap.get(tile.name,self.default)(tile)
 

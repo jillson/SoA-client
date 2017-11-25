@@ -1,8 +1,3 @@
-Dungeons have levels
-  OldLoc not working as expected
-Dungeons have checkpoints
-Dungeons reset on entry
-Dungeons rebalanced
 Create mines based on dungeons
 add mining
 add planting
@@ -16,6 +11,11 @@ add talking to npcs
 add friendships
 add weather
 add quests
+Dungeons have checkpoints
+Dungeons reset on entry
+Dungeons rebalanced
+Redo how links work ... specifically, add links between maps vs remembering on object, because teleport breaks that...
+
 add blacksmith items to create
 add buying/selling metal and items
 add upgrading items
@@ -47,6 +47,7 @@ add holidays
 add boat buying/selling
 add bulk items on boat
 add overworld map
+add checkpoint chains (as in: a dungeon set has checkpoints, a town may have checkpoints, there may be checkpoints on overworld to each town, etc.)
 add treasure maps
 add lat/lng device (levels of accuracy?)
 add more towns

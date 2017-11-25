@@ -61,10 +61,14 @@ class Controller:
         newy = player.y + dy
         if not self.world.my_map.is_blocked(newx,newy):
             event = player.move(dx, dy)
-            if event and event.type == "teleport":
-                self.world.my_map = event.map
-                if player not in event.map.objects:
-                    event.map.objects.append(player)
+            if event:
+                if event.type == "teleport":
+                    self.world.my_map = event.map
+                    if player not in event.map.objects:
+                        event.map.objects.append(player)
+                elif event.type == "action":
+                    actionResult = event.action.run(player,self.gui)
+                    print(actionResult)
             self.gui.fov_recompute = True
         else:
             blockingTile = self.world.my_map.getTile(newx,newy)
