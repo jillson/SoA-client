@@ -17,12 +17,11 @@ print("Reminder: set self.explored to False when done debugging")
 mapDict = {}
 
 class MapSwitch:
-    def __init__(self,targetName=None,generator=None,startX=None,startY=None,oldLoc=None):
+    def __init__(self,targetName=None,generator=None,startX=None,startY=None):
         self.targetName = targetName
         self.generator = generator
         self.startX = startX
         self.startY = startY
-        self.oldLoc = oldLoc
     def switch(self):
         print("Switching to",self.targetName)
         tMap = None
@@ -30,12 +29,13 @@ class MapSwitch:
             tMap =  mapDict[self.targetName]
         else:
             if self.generator:
-                tMap = self.generator.generate_map(self.targetName,self.oldLoc)
+                tMap = self.generator.generate_map(self.targetName)
                 if self.targetName:
                     mapDict[self.targetName] = tMap
         if not tMap:
             print("Warning, couldn't find {}".format(self.targetName))
             return None,0,0
+
         if self.startX == None:
             self.startX = tMap.startX
         if self.startY == None:
@@ -97,6 +97,7 @@ class Tile:
         self.char = char
         self.attrs = {}
         self.target = None
+        self.action = None
     def convert(self,target):
         newTileG = tg.get(target)
         if newTileG:
@@ -108,7 +109,7 @@ class Tile:
             self.char = newTile.char
             self.attrs = newTile.attrs
             self.target = newTile.target
-        
+            self.action = newTile.action
 
 class TileGenerator:
     def __init__(self,name,block_move,block_sight,color,alt_color,char):
@@ -189,18 +190,23 @@ class Map:
         
         self.my_map = [[ tg[default_tile].generate() for _ in range(self.height)] for _ in range(self.width)]
 
-    def enterSpace(self,obj):
+    def enterSpace(self,obj,oldX,oldY):
         x,y=obj.x,obj.y
         tile = self.my_map[x][y]
         if tile.target:
             if obj in self.objects:
                 self.objects.remove(obj)
+
+            obj.previous[self.name] = (oldX,oldY)
             newMap,newX,newY = tile.target.switch()
-            obj.x = newX
-            obj.y = newY
+            obj.x,obj.y = obj.previous.get(newMap.name,(newX,newY))
             obj.my_map = newMap
             e = Event(type="teleport")
             e.map = newMap
+            return e
+        if tile.action:
+            e = Event(type="action")
+            e.action = tile.action
             return e
             
 

@@ -92,15 +92,17 @@ class Player(GameObject):
         super(Player, self).__init__(x,y,char,name,color,my_map,blocks,fighter,ai,item)
         self.inventory = []
         self.interactionMap = {"tree":self.chop,"rock":self.mine,"water":self.water,"plant":self.pick}
+        self.previous = {}
     def handleInteraction(self,tile):
         self.interactionMap.get(tile.name,self.default)(tile)
 
     def move(self, dx, dy):
         #move by the given amount, if the destination is not blocked
         if not self.my_map.is_blocked(self.x + dx, self.y + dy):
+            oldX,oldY = self.x,self.y
             self.x += dx
             self.y += dy
-            return self.my_map.enterSpace(self)
+            return self.my_map.enterSpace(self,oldX,oldY)
 
     def addItem(self,item):
         if item.item.single:

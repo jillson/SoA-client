@@ -1,6 +1,5 @@
 Dungeons have levels
   OldLoc not working as expected
-Make player invincible for now
 Dungeons have checkpoints
 Dungeons reset on entry
 Dungeons rebalanced

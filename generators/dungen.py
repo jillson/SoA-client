@@ -14,12 +14,13 @@ class DungeonGenerator(BaseGenerator):
     def __init__(self):
         super(DungeonGenerator,self).__init__()
 
-    def generate_map(self,name="dungeon1",oldLoc=None):
+    def generate_map(self,name="dungeon1"):
 
         if mapDict.get(name):
             return mapDict[name]
         
         self.my_map = Map(width=MAP_WIDTH, height=MAP_HEIGHT, default_tile="rock")
+        self.my_map.name = name
         rooms = []
         num_rooms = 0
 
@@ -57,13 +58,13 @@ class DungeonGenerator(BaseGenerator):
                     self.my_map.startX = new_x
                     self.my_map.startY = new_y
                     if level == 1:
-                        self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="school1",oldLoc=oldLoc))
+                        self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="school1"))
                     else:
-                        self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="dungeon{}".format(level-1),oldLoc=oldLoc))
+                        self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="dungeon{}".format(level-1)))
                 else:
                     if num_rooms == 1:
                         #second room means will go down
-                        self.my_map.setTile(new_x+1,new_y,"stairDown",target=MapSwitch(targetName="dungeon{}".format(level+1),oldLoc=(self.my_map.startX+1,self.my_map.startY),generator=self))
+                        self.my_map.setTile(new_x+1,new_y,"stairDown",target=MapSwitch(targetName="dungeon{}".format(level+1),generator=self))
                     #all rooms after the first:
                     #connect it to the previous room with a tunnel
                     
@@ -88,7 +89,7 @@ class DungeonGenerator(BaseGenerator):
                 num_rooms += 1
         if True or num_rooms == 1:
             print("Hmm... we only have one room because of unlikely events or debugging")
-            self.my_map.setTile(new_x+1,new_y,"stairDown",target=MapSwitch(targetName="dungeon{}".format(level+1),oldLoc=(self.my_map.startX+1,self.my_map.startY),generator=self))
+            self.my_map.setTile(self.my_map.startX+1,self.my_map.startY,"stairDown",target=MapSwitch(targetName="dungeon{}".format(level+1),generator=self))
         self.my_map.rooms = rooms
         self.my_map.num_rooms = num_rooms
 

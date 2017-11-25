@@ -15,7 +15,7 @@ class SchoolGenerator(BaseGenerator):
     def __init__(self):
         super(SchoolGenerator,self).__init__()
 
-    def generate_map(self,name="school1",oldLoc=None):
+    def generate_map(self,name="school1"):
         if mapDict.get(name):
             return mapDict[name]
 
@@ -27,6 +27,7 @@ class SchoolGenerator(BaseGenerator):
             dtile = "air"
             
         self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile=dtile)
+        self.my_map.name = name
         self.my_map.startX = 30
         self.my_map.startY = 46
         cnt = 1
@@ -40,7 +41,7 @@ class SchoolGenerator(BaseGenerator):
             self.create_v_tunnel(8,40,3,tile="vwall")
             self.create_v_tunnel(8,40,57,tile="vwall")
             self.my_map.setTile(30,47,"door",target=MapSwitch(targetName="town",startX=36,startY=24))
-            self.my_map.setTile(30,45,"stairDown",target=MapSwitch(targetName="dungeon1",oldLoc=(30,45)))
+            self.my_map.setTile(30,45,"stairDown",target=MapSwitch(targetName="dungeon1"))
         if level == 2:
             self.create_h_tunnel(10,50,4,tile="floor")
             self.create_h_tunnel(10,50,42,tile="floor")
@@ -78,7 +79,7 @@ class TownGenerator(BaseGenerator):
     def __init__(self):
         super(TownGenerator,self).__init__()
 
-    def generate_map(self,name="town",oldLoc=None):
+    def generate_map(self,name="town"):
         """ For now, we generate a town where the school is at the top
             underneath there's a row of buildings
             underneath that there's a more compact row of houses
@@ -91,7 +92,8 @@ class TownGenerator(BaseGenerator):
         self.my_map.startX = 27
         self.my_map.startY = 31
         print("Breaking without changing default_tile to use a generator")
-        self.my_map.name = tcod.namegen_generate("mingos towns")
+        self.my_map.townname = tcod.namegen_generate("mingos towns")
+        self.my_map.name = "town"
         self.rects = []
 
         school = Building("school",30,20)
