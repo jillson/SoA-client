@@ -41,7 +41,7 @@ class SchoolGenerator(BaseGenerator):
             self.create_v_tunnel(8,40,3,tile="vwall")
             self.create_v_tunnel(8,40,57,tile="vwall")
             self.my_map.setTile(30,47,"door",target=MapSwitch(targetName="town",startX=36,startY=24))
-            self.my_map.setTile(30,45,"stairDown",target=MapSwitch(targetName="dungeon1"))
+            self.my_map.setTile(30,45,"stairDown",target=MapSwitch(targetName="mine1"))
         if level == 2:
             self.create_h_tunnel(10,50,4,tile="floor")
             self.create_h_tunnel(10,50,42,tile="floor")

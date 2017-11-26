@@ -1,4 +1,3 @@
-Create mines based on dungeons
 add mining
 add planting
 add long-time-actions
@@ -13,8 +12,8 @@ add weather
 add quests
 Dungeons have checkpoints
 Dungeons reset on entry
-Dungeons rebalanced
-Redo how links work ... specifically, add links between maps vs remembering on object, because teleport breaks that...
+Dungeons rebalanced (note that at deep enough levels, monsters scale too fast)
+Redo how links work ... specifically, add links between maps vs remembering on object, because teleport breaks that... also I think name is adding extra 1 somewhere...
 
 add blacksmith items to create
 add buying/selling metal and items

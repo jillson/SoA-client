@@ -9,6 +9,7 @@ import colors
 from generators.basegen import mapDict
 from generators.towngen import TownGenerator, SchoolGenerator
 from generators.dungen import DungeonGenerator
+from generators.minegen import MineGenerator
 from objects import *
 
 def load_name_generators():
@@ -25,6 +26,7 @@ class World:
         self.my_map = mapDict["town"].generate_map()
         mapDict["school1"] = SchoolGenerator().generate_map()
         mapDict["dungeon1"] = DungeonGenerator().generate_map()
+        mapDict["mine1"] = MineGenerator().generate_map()
         #create object representing the player
         fighter_component = Fighter(hp=30, defense=2, power=5, 
                                 death_function=player_death)

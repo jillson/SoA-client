@@ -44,8 +44,101 @@ class MapSwitch:
         return tMap,self.startX,self.startY
 
 class BaseGenerator:
-    def __init__(self,stuff=None):
-        pass
+    def __init__(self,basename="base",default_tile="rock",floor_tile="floor"):
+        self.basename=basename
+        self.default_tile = default_tile
+        self.floor_tile = floor_tile
+        
+    def generate_map(self,name=None):
+        if not name:
+            name = self.basename + "1"
+        if name and mapDict.get(name):
+            return mapDict[name]
+        
+        self.my_map = Map(width=MAP_WIDTH, height=MAP_HEIGHT, default_tile=self.default_tile)
+        self.my_map.name = name
+        rooms = []
+        num_rooms = 0
+
+        level = int(name[len(self.basename):])
+        
+        for r in range(MAX_ROOMS):
+            #random width and height
+            w = random.randint(ROOM_MIN_SIZE, ROOM_MAX_SIZE)
+            h = random.randint(ROOM_MIN_SIZE, ROOM_MAX_SIZE)
+            #random position without going out of the boundaries of the map
+            x = random.randint(0, MAP_WIDTH-w-1)
+            y = random.randint(0, MAP_HEIGHT-h-1)
+ 
+            #"Rect" class makes rectangles easier to work with
+            new_room = Rect(x, y, w, h)
+ 
+            #run through the other rooms and see if they intersect with this one
+            failed = False
+            for other_room in rooms:
+                if new_room.intersect(other_room):
+                    failed = True
+                    break
+ 
+            if not failed:
+                #this means there are no intersections, so this room is valid
+ 
+                #"paint" it to the map's tiles
+                self.create_room(new_room)
+ 
+                #center coordinates of new room, will be useful later
+                (new_x, new_y) = new_room.center()
+ 
+                if num_rooms == 0:
+                    #this is the first room, where the player starts at
+                    self.my_map.startX = new_x
+                    self.my_map.startY = new_y
+                    if level == 1:
+                        self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="school1"))
+                        self.my_map.setTile(new_x,new_y+2,"rune",action=Action(checkpointCheck))
+                    else:
+                        self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="{}{}".format(self.basename,level-1)))
+                else:
+                    if num_rooms == 1:
+                        #second room means will go down
+                        self.my_map.setTile(new_x+1,new_y,"stairDown",target=MapSwitch(targetName="{}{}".format(self.basename,level+1),generator=self))
+                    #all rooms after the first:
+                    #connect it to the previous room with a tunnel
+                    
+                    #center coordinates of previous room
+                    (prev_x, prev_y) = rooms[num_rooms-1].center()
+ 
+                    #draw a coin (random number that is either 0 or 1)
+                    if random.randint(0, 1):
+                        #first move horizontally, then vertically
+                        self.create_h_tunnel(prev_x, new_x, prev_y, clear=self.default_tile)
+                        self.create_v_tunnel(prev_y, new_y, new_x, clear=self.default_tile)
+                    else:
+                        #first move vertically, then horizontally
+                        self.create_v_tunnel(prev_y, new_y, prev_x, clear=self.default_tile)
+                        self.create_h_tunnel(prev_x, new_x, new_y, clear=self.default_tile)
+ 
+                    #add some contents to this room, such as monsters
+                    self.place_objects(new_room,level)
+ 
+                #finally, append the new room to the list
+                rooms.append(new_room)
+                num_rooms += 1
+        if True or num_rooms == 1:
+            print("Hmm... we only have one room because of unlikely events or debugging")
+            self.my_map.setTile(self.my_map.startX+1,self.my_map.startY,"stairDown",target=MapSwitch(targetName="{}{}".format(self.basename,level+1),generator=self))
+        self.my_map.rooms = rooms
+        self.my_map.num_rooms = num_rooms
+
+        mapDict[name] = self.my_map
+        return self.my_map
+ 
+    def create_room(self, room):
+        """ converts all room tiles to be non blocking """
+        for x in range(room.x1 + 1, room.x2):
+            for y in range(room.y1 + 1, room.y2):
+                self.my_map.setTile(x,y,self.floor_tile)
+    
 
     def drawRoom(self,x,y,building):
         for offset in range(building.width-2):
@@ -77,6 +170,11 @@ class BaseGenerator:
         for y in range(min(y1, y2), max(y1, y2) + 1):
             if not clear or self.my_map.getTile(x,y).name == clear:
                 self.my_map.setTile(x,y,tile)
+
+    def place_objects(self, room,level):
+        print("Warning, basegenerator doesn't place_objects; override")
+        return
+    
 
 
 class Tile:
@@ -129,7 +227,7 @@ class TileGenerator:
 tg = {"road":TileGenerator("road",False,False,colors.sepia,colors.light_sepia,"."),
       "sand":TileGenerator("sand",False,False,colors.lighter_sepia,colors.lightest_sepia,"."),
       "grass":TileGenerator("grass",False,False,colors.green,colors.light_green,"."),
-      "dirt":TileGenerator("road",False,False,colors.light_sepia,colors.lighter_sepia,"."),
+      "dirt":TileGenerator("dirt",False,False,colors.light_sepia,colors.lighter_sepia,"."),
       "floor":TileGenerator("floor",False,False,colors.light_gray,colors.lighter_gray,"."),
       "stairUp":TileGenerator("stairUp",False,False,colors.light_gray,colors.lighter_gray,">"),
       "stairDown":TileGenerator("stairDown",False,False,colors.light_gray,colors.lighter_gray,"<"),

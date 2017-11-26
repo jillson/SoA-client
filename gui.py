@@ -38,13 +38,15 @@ class Gui:
         x_centered = x + (total_width-len(text))//2
         self.panel.draw_str(x_centered, y, text, fg=colors.white, bg=None)
 
-    def get_names_under_mouse(self, world_objects):
+    def get_names_under_mouse(self, world_objects, tile):
         #return a string with the names of all objects under the mouse
         (x, y) = self.mouse_coord
  
         #create a list with the names of all objects at the mouse's coordinates and in FOV
         names = [obj.name for obj in world_objects
                  if obj.x == x and obj.y == y and (obj.x, obj.y) in self.visible_tiles]
+        if tile:
+            names.append(tile.name)
  
         names = ', '.join(names)  #join the names, separated by commas
         return str(self.mouse_coord) + ": " + names.capitalize()
@@ -122,10 +124,15 @@ class Gui:
         self.render_bar(BAR_WIDTH * 2 +10, 1, BAR_WIDTH, 'SP', 18, 20, colors.light_grey, colors.darker_grey)
 
         self.panel.draw_str(1, 2, "Hello World", bg=None, fg=colors.light_gray)
-        
+
+        tx,ty = self.mouse_coord
+        if world.my_map.is_visible_tile(tx,ty):
+            tile = world.my_map.getTile(tx,ty)
+        else:
+            tile = None
  
         #display names of objects under the mouse
-        self.panel.draw_str(1, 0, self.get_names_under_mouse(world.my_map.objects), bg=None, fg=colors.light_gray)
+        self.panel.draw_str(1, 0, self.get_names_under_mouse(world.my_map.objects, tile), bg=None, fg=colors.light_gray)
  
         #blit the contents of "panel" to the root console
         self.root.blit(self.panel, 0, PANEL_Y, SCREEN_WIDTH, PANEL_HEIGHT, 0, 0)
