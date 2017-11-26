@@ -20,6 +20,92 @@ class Action:
 class Event:
     def __init__(self,type):
         self.type = type
+
+class Inventory:
+    def __init__(self,owner):
+        self.owner = owner
+        self._inventory = []
+        self.gold = 1000 #cha-ching!
+    def buy(self,item,price):
+        if price * item.item.amt > self.gold:
+            return False
+        self.gold -= price * item.item.amt
+        self.add(item)
+        return True
+    def sell(self,itemName,price,amt):
+        if amt == 1: #special case, only way it could be items that are single
+            instance = self.getByName(itemName)
+            if instance:
+                if instance.item.amt <= 1:
+                    self._inventory.remove(instance)
+                else:
+                    instance.item.amt -= 1
+                self.gold += price
+                return True
+            return False
+        instances = [x for x in self._inventory if x.name == itemName])
+        totalAmt = sum(instances)
+        if totalAmt < amt:
+            return False
+        self.gold += price * amt
+        for i in instances:
+            self._inventory.remove(i)
+        if totalAmt > amt:
+            totalAmt -= amt;
+        for i in instances:
+            if totalAmt == 0:
+                break
+            if totalAmt > 100:
+                totalAmt -= 100
+                i.item.amt = 100
+            else:
+                i.item.amt = totalAmt
+                totalAmt = 0
+            self._inventory.append(i)
+
+    def add(self,item):
+        if item.item.single:
+            print("Debug, picked up a singleton item")
+            self._inventory.append(item)
+        else:
+            for i in self._inventory:
+                if i.name == item.name and i.item.amt < 100:
+                    i.item.amt += item.item.amt
+                    if i.item.amt > 100:
+                        item.item.amt = i.item.amt - 100
+                        i.item.amt = 100
+                    else:
+                        return
+            self._inventory.append(item)
+    def remove(self,item,amt=1):
+        try:
+            if amt == "all" or amt.item.single or amt >= item.item.amt:
+                self._inventory.remove(item)
+                return item.item.amt
+            else:
+                item.item.amt -= amt
+                return amt
+        except ValueError:
+            return 0
+    def getByName(self,name):
+        for i in self._inventory:
+            if i.name == name:
+                return i
+        return None
+    def getByType(self,typeName):
+        return None
+    def hasItem(self,item):
+        return item in self._inventory
+    def hasItemByName(self,name):
+        for i in self._inventory:
+            if i.name == name:
+                return True
+        return False
+    def hasItemOfType(self,typeName):
+        return False
+    def asList(self):
+        return self._inventory
+    
     
 
 def checkpointCheck(player,gui):
@@ -111,7 +197,7 @@ class Player(GameObject):
     def __init__(self, x, y, char, name, color, my_map, blocks=False, 
                  fighter=None, ai=None, item=None):
         super(Player, self).__init__(x,y,char,name,color,my_map,blocks,fighter,ai,item)
-        self.inventory = []
+        self.inventory = Inventory(self)
         self.interactionMap = {"tree":self.chop,"gem":self.mine,"stone":self.mine,"water":self.water,"plant":self.pick}
         self.previous = {}
         self.checkPoints = {}
@@ -127,18 +213,7 @@ class Player(GameObject):
             return self.my_map.enterSpace(self,oldX,oldY)
 
     def addItem(self,item):
-        if item.item.single:
-            self.inventory.append(item)
-        else:
-            for i in self.inventory:
-                if i.name == item.name and i.item.amt < 100:
-                    i.item.amt += item.item.amt
-                    if i.item.amt > 100:
-                        item.item.amt = i.item.amt % 100
-                        i.item.amt = 100
-                    else:
-                        return
-            self.inventory.append(item)
+        self.inventory.add(item)
 
     def doAction(self,tile):
         attack = random.randint(1,20)
@@ -255,18 +330,18 @@ class Item:
  
     def pick_up(self,inventory,objects):
         #add to the player's inventory and remove from the map
-        if len(inventory) >= 26:
+        if len(inventory.asList()) >= 26:
             print('Your inventory is full, cannot pick up ' + 
                     self.owner.name + '.', colors.red)
         else:
-            inventory.append(self.owner)
+            inventory.add(self.owner)
             objects.remove(self.owner)
             print('You picked up a ' + self.owner.name + '!', colors.green)
  
     def drop(self, inventory, objects, player):
         #add to the map and remove from the player's inventory. also, place it at the player's coordinates
         objects.append(self.owner)
-        inventory.remove(self.owner)
+        inventory.remove(self.owner,amt="all")
         self.owner.x = player.x
         self.owner.y = player.y
         print('You dropped a ' + self.owner.name + '.', colors.yellow)
@@ -277,10 +352,11 @@ class Item:
             print('The ' + self.owner.name + ' cannot be used.')
         else:
             if self.use_function(user) != 'cancelled':
-                inventory.remove(self.owner)  #destroy after use, unless it was 
+                inventory.remove(self.owner,amt=1)  #destroy after use, unless it was 
                                               #cancelled for some reason
  
 def player_death(player):
+    return
     #the game ended!
     global game_state
     print('You died!', colors.red)
@@ -291,6 +367,7 @@ def player_death(player):
     player.color = colors.dark_red
  
 def monster_death(monster):
+    print("Hey, make me lootable?")
     #transform it into a nasty corpse! it doesn't block, can't be
     #attacked and doesn't move
     print(monster.name.capitalize() + ' is dead!', colors.orange)

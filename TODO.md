@@ -3,14 +3,14 @@ add hoeing
 add planting
 add long-time-actions
 add watering
-make inventory first class Object (class-ify inventory)
-fix picking up multi item (e.g. wood or stone) when already have instance of that type
 add filling watering can
 add npcs
 add talking to npcs
 add friendships
 add weather
 add quests
+fix town creation so water in farms doesn't block front door
+fix town creation to make stones vs rocks in forest
 Dungeons have checkpoints
 Dungeons reset on entry
 Dungeons rebalanced (note that at deep enough levels, monsters scale too fast)

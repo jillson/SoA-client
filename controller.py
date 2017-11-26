@@ -125,14 +125,14 @@ class Controller:
                 if user_input.text == 'i':
                     #show the inventory; if an item is selected, use it
                     chosen_item = self.gui.inventory_menu('Press the key next to an item to ' +
-                                                 'use it, or any other to cancel.\n',self.world.player.inventory)
+                                                          'use it, or any other to cancel.\n',self.world.player.inventory.asList())
                     if chosen_item is not None:
                         chosen_item.use(self.world.player, self.world.player.inventory)
  
                 if user_input.text == 'd':
                     #show the inventory; if an item is selected, drop it
                     chosen_item = self.gui.inventory_menu('Press the key next to an item to' + 
-                                                 'drop it, or any other to cancel.\n',self.world.player.inventory)
+                                                          'drop it, or any other to cancel.\n',self.world.player.inventory.asList())
                     if chosen_item is not None:
                         chosen_item.drop(self.world.player.inventory, self.world.my_map.objects, self.world.player)
  
@@ -199,7 +199,6 @@ class Controller:
             savefile['my_map'] = self.world.my_map
             savefile['objects'] = world.my_map.objects
             savefile['player_index'] = world.my_map.objects.index(player)  #index of player in objects list
-            savefile['inventory'] = world.player.inventory
             savefile['game_msgs'] = game_msgs
             savefile['game_state'] = self.game_state
  
