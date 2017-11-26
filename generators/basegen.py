@@ -241,6 +241,8 @@ tg = {"road":TileGenerator("road",False,False,colors.sepia,colors.light_sepia,".
       "fence":TileGenerator("fence",True,True,colors.dark_sepia,colors.darker_sepia,"="),
       "rock":TileGenerator("rock",True,True,colors.dark_grey,colors.darker_grey,"."),
       "tree":TileGenerator("tree",True,True,colors.dark_green,colors.darker_sepia,"T"),
+      "stone":TileGenerator("stone",True,False,colors.dark_grey,colors.darker_grey,"*"),
+      "gem":TileGenerator("gem",True,False,colors.light_blue,colors.lighter_blue,"*"),
       }
 
 class Rect:

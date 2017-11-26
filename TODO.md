@@ -1,9 +1,10 @@
-add mining
-add planting
-add long-time-actions
 add buying seeds
 add hoeing
+add planting
+add long-time-actions
 add watering
+make inventory first class Object (class-ify inventory)
+fix picking up multi item (e.g. wood or stone) when already have instance of that type
 add filling watering can
 add npcs
 add talking to npcs
@@ -14,11 +15,11 @@ Dungeons have checkpoints
 Dungeons reset on entry
 Dungeons rebalanced (note that at deep enough levels, monsters scale too fast)
 Redo how links work ... specifically, add links between maps vs remembering on object, because teleport breaks that... also I think name is adding extra 1 somewhere...
-
+enhance mining (more stuff to mine)
+make tiles be separate file, possibly as JSON?
 add blacksmith items to create
 add buying/selling metal and items
 add upgrading items
-class-ify inventory
 add backpack upgrades / limits
 add growing / picking
 add day/night cycles

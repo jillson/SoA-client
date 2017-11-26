@@ -20,7 +20,7 @@ class MineGenerator(BaseGenerator):
             return None,None
         choice = random.randint(1,20*level)
         if choice < 20:
-            return "rock","tile"
+            return "stone","tile"
         if choice < 25:
             return "bug","badguy"
         if choice < 40:

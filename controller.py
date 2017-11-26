@@ -134,7 +134,7 @@ class Controller:
                     chosen_item = self.gui.inventory_menu('Press the key next to an item to' + 
                                                  'drop it, or any other to cancel.\n',self.world.player.inventory)
                     if chosen_item is not None:
-                        chosen_item.drop(self.world.player.inventory, self.world.objects, self.world.player)
+                        chosen_item.drop(self.world.player.inventory, self.world.my_map.objects, self.world.player)
  
                 return 'didnt-take-turn'
   

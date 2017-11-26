@@ -112,7 +112,7 @@ class Player(GameObject):
                  fighter=None, ai=None, item=None):
         super(Player, self).__init__(x,y,char,name,color,my_map,blocks,fighter,ai,item)
         self.inventory = []
-        self.interactionMap = {"tree":self.chop,"rock":self.mine,"water":self.water,"plant":self.pick}
+        self.interactionMap = {"tree":self.chop,"gem":self.mine,"stone":self.mine,"water":self.water,"plant":self.pick}
         self.previous = {}
         self.checkPoints = {}
     def handleInteraction(self,tile):
@@ -139,8 +139,8 @@ class Player(GameObject):
                     else:
                         return
             self.inventory.append(item)
-    def chop(self,tile):
-        print("You summon a magic axe until I implement inventory checking")
+
+    def doAction(self,tile):
         attack = random.randint(1,20)
         if attack < 5:
             print("You swing and ... miss")
@@ -150,10 +150,22 @@ class Player(GameObject):
         if tile.attrs["hp"] <= 0:
             num = random.randint(1,3) + random.randint(1,3)
             tile.convert("dirt")
-            self.addItem(GameObject(self.x,self.y,'W','wood',colors.dark_sepia, self, item=Item(amt=num,single=False)))
-        pass
+            return True
+    def chop(self,tile):
+        print("You summon a magic axe until I implement inventory checking")
+        if self.doAction(tile):
+            num = random.randint(1,3) + random.randint(1,3)
+            self.addItem(GameObject(self.x,self.y,'W','wood',colors.dark_sepia, self, item=Item(amt=num,single=False)))            
     def mine(self,tile):
-        pass
+        obj = tile.name
+        print("You summon a magic pickaxe until I implement inventory checking")
+        if self.doAction(tile):
+            if obj == "stone":
+                num = 3 + random.randint(1,3) + random.randint(1,3)
+                self.addItem(GameObject(self.x,self.y,'*','stone',colors.dark_grey, self, item=Item(amt=num,single=False)))
+            elif obj == "gem":
+                num = random.randint(1,3) 
+                self.addItem(GameObject(self.x,self.y,'*','gem',colors.lightest_blue, self, item=Item(amt=num,single=False)))            
     def water(self,tile):
         pass
     def pick(self,tile):
