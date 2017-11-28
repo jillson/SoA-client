@@ -185,7 +185,10 @@ class Gui:
  
         #present the root console to the player and wait for a key-press
         tdl.flush()
-        key = tdl.event.key_wait()
+        while True:
+            key = tdl.event.key_wait()
+            if key.char != '':
+                break
         key_char = key.char
         if key_char == '':
             key_char = ' ' # placeholder

@@ -8,7 +8,12 @@ from gameconsts import *
 
 from objects import *
 
-from generators.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict
+from models.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict
+
+from models.store import StoreBaseGenerator
+
+if not mapDict.get("storeGen"):
+    mapDict["storeGen"] = StoreBaseGenerator()
 
 
 class SchoolGenerator(BaseGenerator):
@@ -89,8 +94,10 @@ class TownGenerator(BaseGenerator):
         #TODO: name the roads using another generator (or q&d hack that glues way/street/drive/etc. to other names?)
         
         self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile="grass")
-        self.my_map.startX = 27
-        self.my_map.startY = 31
+        #self.my_map.startX = 27
+        #self.my_map.startY = 31
+        self.my_map.startX = 26
+        self.my_map.startY = 45
         print("Breaking without changing default_tile to use a generator")
         self.my_map.townname = tcod.namegen_generate("mingos towns")
         self.my_map.name = "town"
@@ -213,11 +220,14 @@ class TownGenerator(BaseGenerator):
     def placeShops(self,shops):
         x = 24
         y = 44
-
+        sg = mapDict["storeGen"]
+        
         for shop in shops:
             self.rects.append(Rect(x,y,shop.width,shop.height))
             self.drawRoom(x,y,shop)
-            doorX = x+(shop.width//2) 
+            doorX = x+(shop.width//2)
+            cenY = y+(shop.width//2)
+            shop.store = sg.generate_store(self.my_map,doorX,cenY,shop.name)
             self.my_map.setTile(doorX,y,"door")
             self.my_map.setTile(doorX,y-1,"road")
             x += shop.width + 2

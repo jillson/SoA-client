@@ -8,7 +8,7 @@ from gameconsts import *
 
 from objects import *
 
-from generators.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict, Action
+from models.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict, Action
 
 class DungeonGenerator(BaseGenerator):
     def __init__(self,name="dungeon1"):

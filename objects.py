@@ -38,13 +38,12 @@ class Inventory:
             if instance:
                 if instance.item.amt <= 1:
                     self._inventory.remove(instance)
-                else:
-                    instance.item.amt -= 1
-                self.gold += price
-                return True
-            return False
-        instances = [x for x in self._inventory if x.name == itemName])
-        totalAmt = sum(instances)
+                    self.gold += price
+                    return True
+            else:
+                return False
+        instances = [x for x in self._inventory if x.name == itemName]
+        totalAmt = sum([x.item.amt for x in instances])
         if totalAmt < amt:
             return False
         self.gold += price * amt
@@ -62,6 +61,7 @@ class Inventory:
                 i.item.amt = totalAmt
                 totalAmt = 0
             self._inventory.append(i)
+        return True
 
     def add(self,item):
         if item.item.single:

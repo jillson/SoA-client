@@ -6,10 +6,10 @@ import tcod
 from random import randint
 import colors
 
-from generators.basegen import mapDict
-from generators.towngen import TownGenerator, SchoolGenerator
-from generators.dungen import DungeonGenerator
-from generators.minegen import MineGenerator
+from models.basegen import mapDict
+from models.towngen import TownGenerator, SchoolGenerator
+from models.dungen import DungeonGenerator
+from models.minegen import MineGenerator
 from objects import *
 
 def load_name_generators():

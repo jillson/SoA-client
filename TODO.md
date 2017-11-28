@@ -1,9 +1,13 @@
-add buying seeds
+add equipping hoes
+give user hoe to start
 add hoeing
 add planting
 add long-time-actions
 add watering
 add filling watering can
+add prices
+add real store inventories
+add minor economy sim?
 add npcs
 add talking to npcs
 add friendships
