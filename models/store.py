@@ -40,7 +40,7 @@ class Store:
                            "Gem (1000gp)"], INVENTORY_WIDTH)
         if choice == 0:
             item = GameObject(0,0,'t', 'Acorn', 
-                              colors.light_brown, player.my_map,
+                              colors.light_sepia, player.my_map,
                               item=Item(use_function=cast_confuse))
             price = 50
         elif choice == 1:

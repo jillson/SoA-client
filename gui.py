@@ -163,6 +163,7 @@ class Gui:
  
         #create an off-screen console that represents the menu's window
         window = tdl.Console(width, height)
+        bg = tdl.Console(width,height)
  
         #print the header, with wrapped text
         window.draw_rect(0, 0, width, height, None, fg=colors.white, bg=None)
@@ -181,6 +182,8 @@ class Gui:
         #blit the contents of "window" to the root console
         x = SCREEN_WIDTH//2 - width//2
         y = SCREEN_HEIGHT//2 - height//2
+
+        bg.blit(self.root, 0, 0, width, height, x, y, fg_alpha=1.0, bg_alpha=1.0)
         self.root.blit(window, x, y, width, height, 0, 0, fg_alpha=1.0, bg_alpha=0.7)
  
         #present the root console to the player and wait for a key-press
@@ -196,6 +199,9 @@ class Gui:
         if key.key == 'ENTER' and key.alt:
             #Alt+Enter: toggle fullscreen
             tdl.set_fullscreen(not tdl.get_fullscreen())
+
+        #reset
+        self.root.blit(bg, x, y, width, height, 0, 0, fg_alpha=1.0, bg_alpha=1.0)
  
         #convert the ASCII code to an index; if it corresponds to an option, return it
         index = ord(key_char) - ord('a')
