@@ -31,6 +31,10 @@ class World:
         fighter_component = Fighter(hp=30, defense=2, power=5, 
                                 death_function=player_death)
         self.player = Player(self.my_map.startX, self.my_map.startY, '@', 'player', colors.white, self.my_map, blocks=True, fighter=fighter_component)
+        hoe = GameObject(0, 0, '/', 'Hoe', colors.lighter_grey, self.my_map, item=Item(use_function=hoe_func))
+        seeds = GameObject(0, 0, '/', 'Seeds', colors.white, self.my_map, item=Item(use_function=plant_func,amt=100))
+        player.inventory.add(hoe)
+        player.inventory.add(seeds)
         self.my_map.player = self.player
         self.my_map.objects.append(self.player)
         self.ticks = 0

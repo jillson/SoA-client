@@ -99,10 +99,13 @@ class Gui:
         ticks = ticks // 60
         h = ticks % 12
         timeMsg="%2d:%02d:%02d"%(h,m,s)
+
+        equipMsg = player.inventory.getEquippedStr()
         
         #render right side panel
         self.panel2.clear(fg=colors.white, bg=colors.black)
         self.panel2.draw_str(1,1,timeMsg, bg=None, fg=colors.white)
+        self.panel2.draw_str(1,2,equipMsg, bg=None, fg=colors.white)
         #blit the contents of "panel" to the root console
                 
         self.root.blit(self.panel2, MAP_WIDTH, 0, PANEL_2_WIDTH, PANEL_2_HEIGHT, 0, 0)

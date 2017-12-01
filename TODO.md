@@ -1,3 +1,5 @@
+refactor GameObject to separate NPC/PC vs Objects
+refactor GameObject to use inheritance vs composition
 add equipping hoes
 give user hoe to start
 add hoeing

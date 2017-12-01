@@ -41,7 +41,7 @@ class Store:
         if choice == 0:
             item = GameObject(0,0,'t', 'Acorn', 
                               colors.light_sepia, player.my_map,
-                              item=Item(use_function=cast_confuse))
+                              item=Item())
             price = 50
         elif choice == 1:
             item = GameObject(0,0,'t', 'Wheat Seeds', 

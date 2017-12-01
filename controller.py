@@ -121,20 +121,31 @@ class Controller:
                         if obj.x == player.x and obj.y == player.y and obj.item:
                             obj.item.pick_up(self.world.player.inventory, self.world.my_map.objects)
                             break
- 
+
+
+                if user_input.text == 'e':
+                    #show the inventory; if an item is selected, equip it
+                    chosen_item = self.gui.inventory_menu('Press the key next to an item to ' +
+                                                          'equip it, or any other to cancel.\n',self.world.player.inventory.asList())
+                    if chosen_item is not None:
+                        self.world.player.inventory.equip(chosen_item)
+
+                if user_input.text == 'u':
+                    self.world.player.inventory.use()
+
                 if user_input.text == 'i':
                     #show the inventory; if an item is selected, use it
                     chosen_item = self.gui.inventory_menu('Press the key next to an item to ' +
                                                           'use it, or any other to cancel.\n',self.world.player.inventory.asList())
                     if chosen_item is not None:
-                        chosen_item.use(self.world.player, self.world.player.inventory)
+                        self.world.player.inventory.use(chosen_item)
  
                 if user_input.text == 'd':
                     #show the inventory; if an item is selected, drop it
                     chosen_item = self.gui.inventory_menu('Press the key next to an item to' + 
                                                           'drop it, or any other to cancel.\n',self.world.player.inventory.asList())
                     if chosen_item is not None:
-                        chosen_item.drop(self.world.player.inventory, self.world.my_map.objects, self.world.player)
+                        self.world.player.inventory.drop(chosen_item)
  
                 return 'didnt-take-turn'
   
