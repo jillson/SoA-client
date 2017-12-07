@@ -3,6 +3,7 @@
 
 from gameconsts import *
 from objects import *
+from models.items.itemfactory import itemFactory
 
 #from generators.basegen import Action
 
@@ -38,29 +39,18 @@ class Store:
                            "Wheat Seeds (10gp)",
                            "Stone (1gp)",
                            "Gem (1000gp)"], INVENTORY_WIDTH)
-        if choice == 0:
-            item = GameObject(0,0,'t', 'Acorn', 
-                              colors.light_sepia, player.my_map,
-                              item=Item())
-            price = 50
-        elif choice == 1:
-            item = GameObject(0,0,'t', 'Wheat Seeds', 
-                              colors.light_yellow, player.my_map,item=Item())
-            price = 10
-        elif choice == 2:
-            item = GameObject(0,0,'*', 'stone', 
-                              colors.grey, player.my_map,item=Item(single=False))
-            price = 1
-        elif choice == 3:
-            item = GameObject(0,0,'*', 'gem', 
-                              colors.light_blue, player.my_map,item=Item(single=False))
-            price = 1000
-        else:
+
+        v = {0:("acorn",50),
+             1:("wheat seeds",10),
+             2:("stone",1),
+             3:("gem",1000)}.get(choice)
+        if not v:
             return
+        item,price = v
         return player.inventory.buy(item,price)
     def sell(self,player,gui):
         choice = gui.menu("You have {} gold".format(player.inventory.gold),
-                          ["{}{}".format(x.name,not x.item.single and "({})".format(x.item.amt) or "") for x in player.inventory.asList()],
+                          ["{}{}".format(x.name,not x.single and "({})".format(x.amt) or "") for x in player.inventory.asList()],
                           INVENTORY_WIDTH)
         if choice == 0 or choice:
             try:

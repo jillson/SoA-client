@@ -77,3 +77,6 @@ class GameObject:
 
 class GameCharacter(GameObject):
     pass
+
+class GameItem(GameObject):
+    pass

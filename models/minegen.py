@@ -8,6 +8,7 @@ from gameconsts import *
 
 from objects import *
 
+
 from models.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict, Action
 
 class MineGenerator(BaseGenerator):
@@ -52,7 +53,7 @@ class MineGenerator(BaseGenerator):
                     elif objType == "badguy":
                         fighter_component = Fighter(hp=random.randint(level*3,level*6), defense=level-1, power=random.randint(level,level*2),death_function=monster_death)
                         ai_component = BasicMonster()
-                        monster = GameObject(x, y, 'b', 'bug', colors.desaturated_green, self.my_map, blocks=True, fighter=fighter_component, ai=ai_component)
+                        monster = GameCharacter(x, y, 'b', 'bug', colors.desaturated_green, self.my_map, blocks=True, fighter=fighter_component, ai=ai_component)
                         self.my_map.objects.append(monster)
  
                 

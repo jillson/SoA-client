@@ -8,6 +8,8 @@ from gameconsts import *
 
 from objects import *
 
+from models.items.itemfactory import itemFactory
+
 from models.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict, Action
 
 class DungeonGenerator(BaseGenerator):
@@ -33,14 +35,14 @@ class DungeonGenerator(BaseGenerator):
                                                 death_function=monster_death)
                     ai_component = BasicMonster()
  
-                    monster = GameObject(x, y, 'o', 'orc', colors.desaturated_green, self.my_map, blocks=True, fighter=fighter_component, ai=ai_component)
+                    monster = GameCharacter(x, y, 'o', 'orc', colors.desaturated_green, self.my_map, blocks=True, fighter=fighter_component, ai=ai_component)
                 else:
                     #create a troll
                     fighter_component = Fighter(hp=16, defense=1, power=4,
                                             death_function=monster_death)
                     ai_component = BasicMonster()
  
-                    monster = GameObject(x, y, 'T', 'troll', colors.darker_green, self.my_map,
+                    monster = GameCharacter(x, y, 'T', 'troll', colors.darker_green, self.my_map,
                     blocks=True, fighter=fighter_component, ai=ai_component)
  
                     objects.append(monster)
@@ -58,31 +60,14 @@ class DungeonGenerator(BaseGenerator):
                 dice = random.randint(0, 100)
                 if dice < 70:
                     #create a healing potion (70% chance)
-                    item_component = Item(use_function=cast_heal)
- 
-                    item = GameObject(x, y, '!', 'healing potion', 
-                                      colors.violet, self.my_map, item=item_component)
- 
+                    item = itemFactory.getItem("healing potion")
                 elif dice < 70+10:
-                    #create a lightning bolt scroll (15% chance)
-                    item_component = Item(use_function=cast_lightning)
- 
-                    item = GameObject(x, y, '#', 'scroll of lightning bolt', 
-                                      colors.light_yellow, self.my_map, item=item_component)
- 
+                    #create a mana potion (15% chance)
+                    item = itemFactory.getItem("mana potion")
                 elif dice < 70+10+10:
-                    #create a fireball scroll (10% chance)
-                    item_component = Item(use_function=cast_fireball)
- 
-                    item = GameObject(x, y, '#', 'scroll of fireball', 
-                                      colors.light_yellow, self.my_map, item=item_component)
- 
+                    item = itemFactory.getItem("gem",amt=random.randint(1,3))
                 else:
-                    #create a confuse scroll (15% chance)
-                    item_component = Item(use_function=cast_confuse)
-                    
-                    item = GameObject(x, y, '#', 'scroll of confusion', 
-                                      colors.light_yellow, self.my_map, item=item_component)
+                    item = itemFactory.getItem("stone",amt=random.randint(1,10))
  
                 objects.append(item)
                 item.send_to_back()  #items appear below other objects

@@ -1,7 +1,3 @@
-refactor GameObject to separate NPC/PC vs Objects
-refactor GameObject to use inheritance vs composition
-add equipping hoes
-give user hoe to start
 add hoeing
 add planting
 add long-time-actions
@@ -15,6 +11,7 @@ add talking to npcs
 add friendships
 add weather
 add quests
+add attrs to items (and set/use them)
 fix town creation so water in farms doesn't block front door
 fix town creation to make stones vs rocks in forest
 Dungeons have checkpoints

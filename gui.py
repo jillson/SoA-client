@@ -177,7 +177,7 @@ class Gui:
         y = header_height
         letter_index = ord('a')
         for option_text in options:
-            text = '(' + chr(letter_index) + ') ' + option_text
+            text = "({}) {}".format(chr(letter_index),option_text)
             window.draw_str(0, y, text, bg=None)
             y += 1
             letter_index += 1
@@ -224,7 +224,7 @@ class Gui:
         #if an item was chosen, return it
         if index is None or len(inventory) == 0:
             return None
-        return inventory[index].item
+        return inventory[index]
  
     def msgbox(self, text, width=50):
         self.menu(text, [], width)  #use menu() as a sort of "message box"

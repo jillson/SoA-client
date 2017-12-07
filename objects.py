@@ -10,7 +10,8 @@ import shelve
 
 from gameconsts import *
 
-from models.items.baseitem import GameCharacter
+from models.items.baseobject import GameCharacter
+from models.items.itemfactory import itemFactory
 
 class Action:
     def __init__(self,action):
@@ -29,10 +30,10 @@ class Inventory:
         self.gold = 1000 #cha-ching!
         self._equipped = {}
     def getEquippedStr(self):
-        items = ["{}:{}".format(k,v and v.owner.name) for k,v in self._equipped.items()]
+        items = ["{}:{}".format(k,v and v.name) for k,v in self._equipped.items()]
         return "\n".join(items)
     def equip(self,item):
-        slot = item.owner.attrs.get("equipslot","right hand")
+        slot = item.attrs.get("equipslot","right hand")
         #TODO: handle two handed items and also flexible ones (e.g. rings can be equipped on either hand, daggers can be dual weild, etc.)
         if self._equipped.get(slot) == item:
             self._equipped[slot] = None
@@ -49,24 +50,24 @@ class Inventory:
         print("Need to check if this used it up (and therefore may need to be unequipped")
     def drop(self, item):
         item.drop(self.owner,self.owner.my_map.objects,self)
-    def buy(self,item,price):
-        if price * item.item.amt > self.gold:
+    def buy(self,itemName,price,amt=1):
+        if price * amt > self.gold:
             return False
-        self.gold -= price * item.item.amt
-        self.add(item)
+        self.gold -= price * amt
+        self.addByName(itemName,amt)
         return True
     def sell(self,itemName,price,amt):
         if amt == 1: #special case, only way it could be items that are single
             instance = self.getByName(itemName)
             if instance:
-                if instance.item.amt <= 1:
+                if instance.amt <= 1:
+                    self.gold += price * instance.amt
                     self._inventory.remove(instance)
-                    self.gold += price
                     return True
             else:
                 return False
         instances = [x for x in self._inventory if x.name == itemName]
-        totalAmt = sum([x.item.amt for x in instances])
+        totalAmt = sum([x.amt for x in instances])
         if totalAmt < amt:
             return False
         self.gold += price * amt
@@ -79,32 +80,41 @@ class Inventory:
                 break
             if totalAmt > 100:
                 totalAmt -= 100
-                i.item.amt = 100
+                i.amt = 100
             else:
-                i.item.amt = totalAmt
+                i.amt = totalAmt
                 totalAmt = 0
             self._inventory.append(i)
         return True
+    
 
-    def add(self,item):
-        if item.item.single:
+    def addByName(self,itemName,amt=1):
+        item = itemFactory.getItem(itemName,amt=amt)
+        self.add(item,amt)
+
+    def add(self,item,amt=None):
+        if not amt:
+            amt = item.amt
+        if item.single:
+            if amt > 1:
+                print("Warning, we just hit a logic bug...")
             print("Debug, picked up a singleton item")
             self._inventory.append(item)
         else:
             for i in self._inventory:
-                if i.name == item.name and i.item.amt < 100:
-                    i.item.amt += item.item.amt
-                    if i.item.amt > 100:
-                        item.item.amt = i.item.amt - 100
-                        i.item.amt = 100
+                if i.name == item.name and i.amt < 100:
+                    i.amt += item.amt
+                    if i.amt > 100:
+                        item.amt = i.amt - 100
+                        i.amt = 100
                     else:
                         return
             self._inventory.append(item)
     def remove(self,item,amt=1):
         try:
-            if amt == "all" or amt.item.single or amt >= item.item.amt:
+            if amt == "all" or amt.single or amt >= item.amt:
                 self._inventory.remove(item)
-                return item.item.amt
+                return item.amt
             else:
                 item.item.amt -= amt
                 return amt
@@ -162,8 +172,8 @@ class Player(GameCharacter):
             self.y += dy
             return self.my_map.enterSpace(self,oldX,oldY)
 
-    def addItem(self,item):
-        self.inventory.add(item)
+    def addItem(self,itemName,amt):
+        self.inventory.addByName(itemName,amt)
 
     def doAction(self,tile):
         attack = random.randint(1,20)
@@ -180,17 +190,18 @@ class Player(GameCharacter):
         print("You summon a magic axe until I implement inventory checking")
         if self.doAction(tile):
             num = random.randint(1,3) + random.randint(1,3)
-            self.addItem(GameObject(self.x,self.y,'W','wood',colors.dark_sepia, self, item=Item(amt=num,single=False)))            
+            self.addItem("wood",num)
+            
     def mine(self,tile):
         obj = tile.name
         print("You summon a magic pickaxe until I implement inventory checking")
         if self.doAction(tile):
             if obj == "stone":
                 num = 3 + random.randint(1,3) + random.randint(1,3)
-                self.addItem(GameObject(self.x,self.y,'*','stone',colors.dark_grey, self, item=Item(amt=num,single=False)))
+                self.addItem("stone",num)
             elif obj == "gem":
                 num = random.randint(1,3) 
-                self.addItem(GameObject(self.x,self.y,'*','gem',colors.lightest_blue, self, item=Item(amt=num,single=False)))            
+                self.addItem("gem",num)
     def water(self,tile):
         pass
     def pick(self,tile):
