@@ -46,7 +46,7 @@ class Gui:
         names = [obj.name for obj in world_objects
                  if obj.x == x and obj.y == y and (obj.x, obj.y) in self.visible_tiles]
         if tile:
-            names.append(tile.name)
+            names.append(tile.getDescription())
  
         names = ', '.join(names)  #join the names, separated by commas
         return str(self.mouse_coord) + ": " + names.capitalize()
@@ -77,9 +77,9 @@ class Gui:
                         #if it's not visible right now, the player can only see it 
                         #if it's explored
                         if world.my_map.my_map[x][y].explored:
-                            self.con.draw_char(x, y, t.char, fg=None, bg=t.alt_color)
+                            self.con.draw_char(x, y, t.char, fg=t.fg_color, bg=t.alt_color)
                     else:
-                        self.con.draw_char(x, y, t.char, fg=None, bg=t.color)
+                        self.con.draw_char(x, y, t.char, fg=t.fg_color, bg=t.color)
                         #since it's visible, explore it
                         t.explored = True
  
@@ -92,12 +92,7 @@ class Gui:
         #blit the contents of "con" to the root console and present it
         self.root.blit(self.con, 0, 0, MAP_WIDTH, MAP_HEIGHT, 0, 0)
 
-        ticks = world.ticks
-        s = 6 * (ticks % 10)
-        ticks = ticks // 10
-        m = ticks % 60
-        ticks = ticks // 60
-        h = ticks % 12
+        d,h,m,s = world.getTime()
         timeMsg="%2d:%02d:%02d"%(h,m,s)
 
         equipMsg = player.inventory.getEquippedStr()

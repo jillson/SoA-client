@@ -191,12 +191,18 @@ class Tile:
             block_sight = blocked
         self.block_sight = block_sight
 
+        self.fg_color = None
+
         self.color = color
         self.alt_color = alt_color
         self.char = char
         self.attrs = {}
         self.target = None
         self.action = None
+    def getDescription(self):
+        if self.attrs:
+            return "{}({})".format(self.name,",".join([k for k,v in self.attrs.items() if v]))
+        return self.name
     def convert(self,target):
         newTileG = tg.get(target)
         if newTileG:
@@ -309,10 +315,6 @@ class Map:
             e.action = tile.action
             return e
             
-
-    def refresh(self,tick):
-        pass
-        
     def getWidth(self):
         return self.width
 

@@ -99,6 +99,11 @@ class Controller:
         elif user_input.text == '~':
             import pdb
             pdb.set_trace()
+        elif user_input.text == 'l':
+            print ("Debug, waiting a day")
+            return 'wait a day'
+        else:
+            print("Huh,",user_input.text)
  
         if self.game_state == 'playing':
             #movement keys
@@ -256,7 +261,11 @@ class Controller:
  
             #let monsters take their turn
             if self.game_state == 'playing' and player_action != 'didnt-take-turn':
-                self.world.update(self.gui.visible_tiles)
+                if player_action == 'wait a day':
+                    for _ in range(10*60*24):
+                        self.world.update(self.gui.visible_tiles)
+                else:
+                    self.world.update(self.gui.visible_tiles)
 
 
 if __name__ == "__main__":

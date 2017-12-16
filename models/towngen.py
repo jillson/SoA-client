@@ -143,7 +143,7 @@ class TownGenerator(BaseGenerator):
             return "tree"
         if roll == 19:
             return "water"
-        return "rock"
+        return "stone"
 
     def getForestTile(self):
         roll = random.randint(1,20)
@@ -153,7 +153,7 @@ class TownGenerator(BaseGenerator):
             return "dirt"
         if roll <= 19:
             return "tree"
-        return "rock"
+        return "stone"
 
     def getBackgroundTile(self):
         roll = random.randint(1,20)
@@ -178,6 +178,16 @@ class TownGenerator(BaseGenerator):
         for x in range(farm.width-2):
             for y in range(farm.height-2):
                 self.my_map.setTile(sx+x+1,sy+y+1,self.getFarmTile())
+        for x in range(farm.width-2):
+            if self.my_map.getTile(sx+x+1,sy+y).name == "water":
+                self.my_map.setTile(sx+x+1,sy+1,"grass")
+            if self.my_map.getTile(sx+x+1,sy+farm.height-2).name == "water":
+                self.my_map.setTile(sx+x+1,sy+farm.height-2,"grass")
+        for y in range(farm.height):
+            if self.my_map.getTile(sx,sy+y).name == "water":
+                self.my_map.setTile(sx,sy+y,"grass")
+            if self.my_map.getTile(sx,sy+farm.height-1).name == "water":
+                self.my_map.setTile(sx,sy+farm.height-1,"grass")
         
             
     def placeBoundary(self):

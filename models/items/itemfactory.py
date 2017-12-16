@@ -1,6 +1,8 @@
 
 import colors
 
+from models.items.itemactions import *
+
 class Item:
     def __init__(self,name,x,y,char,color,blocks,function,single,amt):
         self.name = name
@@ -13,9 +15,10 @@ class Item:
         self.x = x
         self.y = y
         self.attrs = {}
-    def use(self,*args,**kwargs):
+    def use(self,owner,inv):
         if self.function:
-            print("We need to figure out how to call",self.function,args,kwargs)
+            targetTile = owner.my_map.getTile(owner.x,owner.y)
+            return self.function(self,owner,inv,targetTile)
         return
     def getName(self):
         if not self.single:
@@ -72,11 +75,11 @@ itemFactory.register("scroll of fireball", "#", colors.light_red)
 itemFactory.register("healing potion", "!", colors.light_red)
 itemFactory.register("mana potion", "!", colors.light_blue)
 
-itemFactory.register("acorn", "t", colors.light_sepia, single=False)
-itemFactory.register("wheat seeds", "t", colors.light_yellow, single=False)
+itemFactory.register("acorn", "t", colors.light_sepia, single=False, function=plantFunc)
+itemFactory.register("wheat seeds", "t", colors.light_yellow, single=False, function=plantFunc)
 
 itemFactory.register("stone", "*", colors.grey, single=False)
 itemFactory.register("gem", "*", colors.light_blue, single=False)
 itemFactory.register("wood", "w", colors.dark_sepia, single=False)
 
-itemFactory.register("hoe", "/", colors.lighter_grey)
+itemFactory.register("hoe", "/", colors.lighter_grey, function = hoeFunc)

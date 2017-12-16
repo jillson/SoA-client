@@ -46,8 +46,11 @@ class Inventory:
         if not item:
             print("You don't have anything equipped to use")
             return
-        item.use(self.owner,self)
-        print("Need to check if this used it up (and therefore may need to be unequipped")
+        events = item.use(self.owner,self)
+        if events:
+            for e in events:
+                print("Debug, handle",e)
+
     def drop(self, item):
         item.drop(self.owner,self.owner.my_map.objects,self)
     def buy(self,itemName,price,amt=1):

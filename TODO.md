@@ -1,5 +1,9 @@
-add hoeing
 add planting
+  planting seeds should decrement the number of seeds in inventory by one
+save/load game options
+chopping tree doesn't change spot to dirt correctly (check also mining stone)
+fix town creation so water in farms doesn't block front door
+fix town creation to make stones vs rocks in forest
 add long-time-actions
 add watering
 add filling watering can
@@ -9,11 +13,10 @@ add minor economy sim?
 add npcs
 add talking to npcs
 add friendships
+add limits to inventory (and/or paginate inventory better :|)
 add weather
 add quests
 add attrs to items (and set/use them)
-fix town creation so water in farms doesn't block front door
-fix town creation to make stones vs rocks in forest
 Dungeons have checkpoints
 Dungeons reset on entry
 Dungeons rebalanced (note that at deep enough levels, monsters scale too fast)
