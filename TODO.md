@@ -1,6 +1,6 @@
+save/load game options
 add planting
   planting seeds should decrement the number of seeds in inventory by one
-save/load game options
 chopping tree doesn't change spot to dirt correctly (check also mining stone)
 fix town creation so water in farms doesn't block front door
 fix town creation to make stones vs rocks in forest
@@ -10,6 +10,7 @@ add filling watering can
 add prices
 add real store inventories
 add minor economy sim?
+refactor objects.py and models/*
 add npcs
 add talking to npcs
 add friendships
