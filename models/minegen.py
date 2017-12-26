@@ -9,11 +9,12 @@ from gameconsts import *
 from objects import *
 
 
-from models.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict, Action
+from models.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, Action, mapGenerators
 
 class MineGenerator(BaseGenerator):
-    def __init__(self,name="mine1"):
-        super(MineGenerator,self).__init__(name,floor_tile="dirt")
+    Name="MineGenerator"
+    def __init__(self,mapDict,name="mine1"):
+        super(MineGenerator,self).__init__(mapDict,name,floor_tile="dirt")
 
     def choose_object(self,level):
         emptyRoll = random.randint(1,20)
@@ -56,5 +57,6 @@ class MineGenerator(BaseGenerator):
                         monster = GameCharacter(x, y, 'b', 'bug', colors.desaturated_green, self.my_map, blocks=True, fighter=fighter_component, ai=ai_component)
                         self.my_map.objects.append(monster)
  
-                
+mapGenerators["MineGenerator"] = MineGenerator
+
  

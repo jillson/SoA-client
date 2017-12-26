@@ -18,6 +18,10 @@ class Scheduler:
         self.daily = []
         self.monthly = []
         self.ticks = 0
+    def save(self):
+        return {}
+    def load(self,rez):
+        print("Do me load scheduler")
         
     def cancel(self,item):
         self.removeItems(self.shortterm,item)

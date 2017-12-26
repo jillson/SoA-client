@@ -4,7 +4,7 @@ import colors
 from models.items.itemactions import *
 
 class Item:
-    def __init__(self,name,x,y,char,color,blocks,function,single,amt):
+    def __init__(self,name,x,y,char,color,blocks,function,fName,single,amt):
         self.name = name
         self.char = char
         self.color = color
@@ -15,6 +15,20 @@ class Item:
         self.x = x
         self.y = y
         self.attrs = {}
+        self.functionName = fName
+    def save(self):
+        rez = {}
+        rez["name"] = self.name
+        rez["char"] = self.char
+        rez["color"] = self.color
+        rez["blocks"] = self.blocks
+        rez["single"] = self.single
+        rez["amt"] = self.amt
+        rez["x"] = self.x
+        rez["y"] = self.y
+        rez["function"] = self.functionName
+        return rez
+        
     def use(self,owner,inv):
         if self.function:
             targetTile = owner.my_map.getTile(owner.x,owner.y)
@@ -47,10 +61,14 @@ class ItemGenerator:
         self.char = char
         self.color = color
         self.blocks = blocks
-        self.function = function
+        self.functionName = function
+        if function:
+            self.function = itemActions.get(function)
+        else:
+            self.function = None
         self.single = single
     def getItem(self,amt=1,x=None,y=None):
-        return Item(self.name,x,y,self.char,self.color,self.blocks,self.function,self.single,amt)
+        return Item(self.name,x,y,self.char,self.color,self.blocks,self.function,self.functionName,self.single,amt)
 
 class ItemFactory:
     def __init__(self):
@@ -75,11 +93,11 @@ itemFactory.register("scroll of fireball", "#", colors.light_red)
 itemFactory.register("healing potion", "!", colors.light_red)
 itemFactory.register("mana potion", "!", colors.light_blue)
 
-itemFactory.register("acorn", "t", colors.light_sepia, single=False, function=plantFunc)
-itemFactory.register("wheat seeds", "t", colors.light_yellow, single=False, function=plantFunc)
+itemFactory.register("acorn", "t", colors.light_sepia, single=False, function="plantFunc")
+itemFactory.register("wheat seeds", "t", colors.light_yellow, single=False, function="plantFunc")
 
 itemFactory.register("stone", "*", colors.grey, single=False)
 itemFactory.register("gem", "*", colors.light_blue, single=False)
 itemFactory.register("wood", "w", colors.dark_sepia, single=False)
 
-itemFactory.register("hoe", "/", colors.lighter_grey, function = hoeFunc)
+itemFactory.register("hoe", "/", colors.lighter_grey, function = "hoeFunc")

@@ -23,6 +23,36 @@ class GameObject:
         self.item = item
         if self.item:  #let the Item component know who owns it
             self.item.owner = self
+
+    def save(self):
+        if self.item:
+            import pdb
+            pdb.set_trace()
+        if self.ai:
+            ai = str(self.ai.__class__)
+        else:
+            ai = None    
+
+        fighter = self.fighter
+        if fighter:
+            fighter = fighter.save()
+            
+            
+        return {
+            "x": self.x,
+            "y": self.y,
+            "char": self.char,
+            "color": self.color,
+            "attrs": self.attrs,
+            "fighter": fighter,
+            "ai": ai,
+            "blocks": self.blocks,
+            "name": self.name
+        }
+
+    def load(self,rez):
+        print("Do Me, esp fighter and ai")
+        
  
     def move(self, dx, dy):
         #move by the given amount, if the destination is not blocked

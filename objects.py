@@ -18,6 +18,11 @@ class Action:
         self._action = action
     def run(self,*args):
         return self._action(*args)
+    def save(self):
+        return str(self._action)
+    def load(self,name):
+        print("This isn't going to end  well")
+        self._action = name
 
 class Event:
     def __init__(self,type):
@@ -29,6 +34,15 @@ class Inventory:
         self._inventory = []
         self.gold = 1000 #cha-ching!
         self._equipped = {}
+    def save(self):
+        return {
+            "gold": self.gold,
+            "items": [x.save() for x in self._inventory],
+            "equipped": { k: self._inventory.index(v) for k,v in self._equipped.items()}
+        }
+    def load(self,rez):
+        print("Need to do rez")
+        
     def getEquippedStr(self):
         items = ["{}:{}".format(k,v and v.name) for k,v in self._equipped.items()]
         return "\n".join(items)
@@ -157,13 +171,36 @@ def checkpointCheck(player,gui):
 
 
 class Player(GameCharacter):
-    def __init__(self, x, y, char, name, color, my_map, blocks=False, 
-                 fighter=None, ai=None, item=None):
-        super(Player, self).__init__(x,y,char,name,color,my_map,blocks,fighter,ai,item)
+    def __init__(self, x, y, char, name, color, my_map):
+        fighter = Fighter(hp=30, defense=2, power=5, death_function=player_death)
+        super(Player, self).__init__(x,y,char,name,color,my_map,True,fighter,None,None)
         self.inventory = Inventory(self)
         self.interactionMap = {"tree":self.chop,"gem":self.mine,"stone":self.mine,"water":self.water,"plant":self.pick}
         self.previous = {}
         self.checkPoints = {}
+    def save(self):
+        rez = {}
+        rez["color"] = self.color
+        rez["attrs"] = self.attrs
+        rez["char"] = self.char
+        rez["inventory"] = self.inventory.save()
+        rez["name"] = self.name
+        rez["x"] = self.x
+        rez["y"] = self.y
+        rez["my_map"] = self.my_map.name
+        return rez
+    def load(self,rez,mapDict):
+        self.attrs = rez["attrs"]
+        self.color = rez["color"]
+        self.char = rez["char"]
+        self.inventory.load(rez["inventory"])
+        self.name = rez["name"]
+        self.x = rez["x"]
+        self.y = rez["y"]
+        self.my_map = mapDict[rez["my_map"]]
+                        
+        
+
     def handleInteraction(self,tile):
         self.interactionMap.get(tile.name,self.default)(tile)
 
@@ -221,6 +258,16 @@ class Fighter:
         self.defense = defense
         self.power = power
         self.death_function = death_function
+
+    def save(self):
+        return { "hp": self.hp,
+                 "max_hp": self.max_hp,
+                 "defense" : self.defense,
+                 "power": self.power,
+        }
+
+    def load(self,rez):
+        print("Do me load fighter (esp setting death function)")
  
     def take_damage(self, damage):
         #apply damage if possible

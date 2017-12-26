@@ -2,6 +2,7 @@ import random
 
 from models.time import scheduler as timeObj
 
+
 def revertHoe(tile):
     tile.attrs["hoed"] = False
     targetTile.char = " "
@@ -45,3 +46,7 @@ def plantFunc(item,owner,inv,targetTile):
     targetTile.char = ","
     timeObj.cancel(targetTile)
     timeObj.schedule(targetTile,"nextDay",checkPlant)
+
+itemActions = {"hoeFunc":hoeFunc,"plantFunc":plantFunc}
+
+    

@@ -14,8 +14,6 @@ from objects import *
 
 print("Reminder: set self.explored to False when done debugging")
 
-mapDict = {}
-
 
 class MapSwitch:
     def __init__(self,targetName=None,generator=None,startX=None,startY=None):
@@ -23,7 +21,19 @@ class MapSwitch:
         self.generator = generator
         self.startX = startX
         self.startY = startY
-    def switch(self):
+    def save(self):
+        rez = {}
+        rez["targetName"] = self.targetName
+        rez["startX"] = self.startX
+        rez["startY"] = self.startY
+        if self.generator:
+            rez["generator"] = self.generator.save()
+        else:
+            rez["generator"] = None
+        return rez
+    def load(self,rez):
+        print("Do load mapswtich")
+    def switch(self,mapDict):
         print("Switching to",self.targetName)
         tMap = None
         if self.targetName and mapDict.get(self.targetName):
@@ -44,16 +54,20 @@ class MapSwitch:
         return tMap,self.startX,self.startY
 
 class BaseGenerator:
-    def __init__(self,basename="base",default_tile="rock",floor_tile="floor"):
+    Name="BaseGenerator"
+    def __init__(self,mapDict,basename="base",default_tile="rock",floor_tile="floor"):
         self.basename=basename
         self.default_tile = default_tile
         self.floor_tile = floor_tile
+        self.mapDict = mapDict
+    def save(self):
+        return {"name": self.Name, "basename":self.basename}
         
     def generate_map(self,name=None):
         if not name:
             name = self.basename + "1"
-        if name and mapDict.get(name):
-            return mapDict[name]
+        if name and self.mapDict.get(name):
+            return self.mapDict[name]
         
         self.my_map = Map(width=MAP_WIDTH, height=MAP_HEIGHT, default_tile=self.default_tile)
         self.my_map.name = name
@@ -130,7 +144,8 @@ class BaseGenerator:
         self.my_map.rooms = rooms
         self.my_map.num_rooms = num_rooms
 
-        mapDict[name] = self.my_map
+        print("Hmm... do we end up setting this twice?")
+        self.mapDict[name] = self.my_map
         return self.my_map
  
     def create_room(self, room):
@@ -199,6 +214,28 @@ class Tile:
         self.attrs = {}
         self.target = None
         self.action = None
+
+    def save(self):
+        rez = {}
+        rez["alt_color"] = self.alt_color
+        if self.action:
+            rez["action"] = self.action.save()
+        else:
+            rez["action"] = None
+        rez["attrs"] = self.attrs
+        rez["block_sight"] = self.block_sight
+        rez["blocked"] = self.blocked
+        rez["char"] = self.char
+        rez["color"] = self.color
+        rez["explored"] = self.explored
+        rez["fg_color"] = self.fg_color
+        rez["name"] = self.name
+        if self.target:
+            rez["target"] = self.target.save()
+        else:
+            rez["target"] = None
+        return rez
+    
     def getDescription(self):
         if self.attrs:
             return "{}({})".format(self.name,",".join([k for k,v in self.attrs.items() if v]))
@@ -252,6 +289,8 @@ tg = {"road":TileGenerator("road",False,False,colors.sepia,colors.light_sepia,".
       "register":TileGenerator("register",False,False,colors.light_grey,colors.grey,"#"),
       }
 
+mapGenerators = {}
+
 class Rect:
     #a rectangle on the map. used to characterize a room.
     def __init__(self, x, y, w, h):
@@ -289,12 +328,27 @@ class Map:
     def __init__(self,width=MAP_WIDTH,height=MAP_HEIGHT,default_tile="grass"):
         #the list of objects on this map
         self.objects = [] #[player]
-
+        self.attrs = {}
         self.width = width
         self.height = height
         #fill map with default_tiles
         
         self.my_map = [[ tg[default_tile].generate() for _ in range(self.height)] for _ in range(self.width)]
+
+    def save(self,player):
+        rez = {}
+        rez["pIndex"] = -1
+        if player in self.objects:
+            rez["pIndex"] = self.objects.index(player)
+        rez["tiles"] = [[tile.save() for tile in row] for row in self.my_map]
+        rez["width"] = self.width
+        rez["height"] = self.height
+        rez["objects"] = [obj.save() for obj in self.objects if obj != player]
+        rez["attrs"] = self.attrs
+        return rez
+
+    def load(self,rez):
+        print("Do me load map")
 
     def enterSpace(self,obj,oldX,oldY):
         x,y=obj.x,obj.y
@@ -304,7 +358,7 @@ class Map:
                 self.objects.remove(obj)
 
             obj.previous[self.name] = (oldX,oldY)
-            newMap,newX,newY = tile.target.switch()
+            newMap,newX,newY = tile.target.switch(self.mapDict)
             obj.x,obj.y = obj.previous.get(newMap.name,(newX,newY))
             obj.my_map = newMap
             e = Event(type="teleport")

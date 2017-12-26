@@ -21,6 +21,8 @@ from objects import *
 class Controller:
     def __init__(self):
         self.gui = Gui()
+        self.world = World()
+
         while not tdl.event.is_window_closed():
             choice = 0
             #choice = self.gui.main_menu()
@@ -220,21 +222,12 @@ class Controller:
  
  
     def load_game(self):
-        #TODO: implement this correctly
-        #open the previously saved shelve and load the game data
-        global player, inventory, game_msgs, game_state
- 
-        with shelve.open('savegame', 'r') as savefile:
-            my_map = savefile['my_map']
-            objects = savefile['objects']
-            player = objects[savefile['player_index']]  #get index of player in objects list and access it
-            inventory = savefile['inventory']
-            game_msgs = savefile['game_msgs']
-            game_state = savefile['game_state']
+        self.world.load_game()
  
     def new_game(self):
-        self.world = World()
+        self.world.new_game()
         self.world.my_map.con = self.gui.con
+        self.world.save_game("testing.json")
         print("Reminder: my_map shouldn't have con... should be called by controller passing in con or some other way")
         self.game_state = 'playing'
          #a warm welcoming message!
@@ -270,4 +263,5 @@ class Controller:
 
 if __name__ == "__main__":
     c = Controller()
+    c.world.save_game("quicksave")
     print("Goodbye")

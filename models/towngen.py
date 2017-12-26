@@ -8,21 +8,18 @@ from gameconsts import *
 
 from objects import *
 
-from models.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict
-
+from models.basegen import Rect, Building, Map, BaseGenerator, MapSwitch,mapGenerators
 from models.store import StoreBaseGenerator
-
-if not mapDict.get("storeGen"):
-    mapDict["storeGen"] = StoreBaseGenerator()
 
 
 class SchoolGenerator(BaseGenerator):
-    def __init__(self):
-        super(SchoolGenerator,self).__init__()
+    Name="SchoolGenerator"
+    def __init__(self,mapDict):
+        super(SchoolGenerator,self).__init__(mapDict)
 
     def generate_map(self,name="school1"):
-        if mapDict.get(name):
-            return mapDict[name]
+        if self.mapDict.get(name):
+            return self.mapDict[name]
 
         level = int(name[len("school"):])
 
@@ -53,7 +50,7 @@ class SchoolGenerator(BaseGenerator):
             self.create_v_tunnel(4,40,4,tile="floor")
             self.create_v_tunnel(4,40,56,tile="floor")
             
-        mapDict[name] = self.my_map
+        self.mapDict[name] = self.my_map
         
         return self.my_map
     def draw_tower(self,x,y,level,cnt):
@@ -81,8 +78,9 @@ class SchoolGenerator(BaseGenerator):
              
 
 class TownGenerator(BaseGenerator):
-    def __init__(self):
-        super(TownGenerator,self).__init__()
+    Name="TownGenerator"
+    def __init__(self,mapDict):
+        super(TownGenerator,self).__init__(mapDict)
 
     def generate_map(self,name="town"):
         """ For now, we generate a town where the school is at the top
@@ -99,7 +97,7 @@ class TownGenerator(BaseGenerator):
         self.my_map.startX = 26
         self.my_map.startY = 45
         print("Breaking without changing default_tile to use a generator")
-        self.my_map.townname = tcod.namegen_generate("mingos towns")
+        self.my_map.attrs["townname"] = tcod.namegen_generate("mingos towns")
         self.my_map.name = "town"
         self.rects = []
 
@@ -122,7 +120,7 @@ class TownGenerator(BaseGenerator):
         self.placeForest()
         
         self.placeBoundary()
-        mapDict["town"]=self.my_map
+        self.mapDict["town"]=self.my_map
         
         return self.my_map
 
@@ -230,7 +228,7 @@ class TownGenerator(BaseGenerator):
     def placeShops(self,shops):
         x = 24
         y = 44
-        sg = mapDict["storeGen"]
+        sg = StoreBaseGenerator()
         
         for shop in shops:
             self.rects.append(Rect(x,y,shop.width,shop.height))
@@ -263,6 +261,7 @@ class TownGenerator(BaseGenerator):
             self.my_map.setTile(startX+37,4+yOff,"road")
             
         
-  
+mapGenerators["SchoolGenerator"] = SchoolGenerator
+mapGenerators["TownGenerator"] = TownGenerator
 
  

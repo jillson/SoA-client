@@ -10,11 +10,12 @@ from objects import *
 
 from models.items.itemfactory import itemFactory
 
-from models.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, mapDict, Action
+from models.basegen import Rect, Building, Map, BaseGenerator, MapSwitch, Action, mapGenerators
 
 class DungeonGenerator(BaseGenerator):
-    def __init__(self,name="dungeon1"):
-        super(DungeonGenerator,self).__init__(name)
+    Name="DungeonGenerator"
+    def __init__(self,mapDict,name="dungeon1"):
+        super(DungeonGenerator,self).__init__(mapDict,name)
     
     def place_objects(self, room, level):
         #choose random number of monsters
@@ -73,3 +74,4 @@ class DungeonGenerator(BaseGenerator):
                 item.send_to_back()  #items appear below other objects
                 
  
+mapGenerators["DungeonGenerator"] = DungeonGenerator
