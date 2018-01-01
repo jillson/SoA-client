@@ -4,6 +4,27 @@ class ScheduledItem:
         self.target = item
         self.function = function
         self.time = None
+    def save(self):
+        fname = str(self.function).split(" ")[1]
+        return {"function": fname,"time":self.time}
+
+    @classmethod
+    def load(cls, item, rez):
+        fName = rez["function"]
+        from models.items.itemactions import itemActions
+
+        function = itemActions.get(fName)
+        
+        si = cls(item,function)
+        si.time = rez["time"]
+        if si.time == "day":
+            scheduler.daily.append(si)
+        elif si.time == "month":
+            scheduler.monthly.append(si)
+        else:
+            scheduler.shortterm.append(si)
+        return si
+        
 
 TICKS_PER_MINUTE = 10
 TICKS_PER_HOUR = TICKS_PER_MINUTE * 60
@@ -19,11 +40,13 @@ class Scheduler:
         self.monthly = []
         self.ticks = 0
     def save(self):
-        return {}
+        return {"ticks":self.ticks}
     def load(self,rez):
-        print("Do me load scheduler")
+        self.ticks = rez["ticks"]
         
     def cancel(self,item):
+        if item.target:
+            self.removeItems(item.target.timeItems,item)
         self.removeItems(self.shortterm,item)
         self.removeItems(self.daily,item)
         self.removeItems(self.monthly,item)
@@ -35,10 +58,13 @@ class Scheduler:
 
     def schedule(self,item,time,function):
         si = ScheduledItem(item,function)
+        item.timeItems.append(si)
         if time == "nextDay":
             self.daily.append(si)
+            si.time="day"
         elif time == "nextMonth":
             self.monthly.append(si)
+            si.time="month"
         else:
             si.time = time+self.ticks
             self.shortterm.append(si)
@@ -67,6 +93,10 @@ class Scheduler:
                 self.monthly = []
             pendingList += self.daily
             self.daily = []
+
+        if pendingList:
+            print(pendingList)
+            print(x.function for x in pendingList)
         
         return pendingList
 

@@ -24,8 +24,7 @@ class Controller:
         self.world = World()
 
         while not tdl.event.is_window_closed():
-            choice = 0
-            #choice = self.gui.main_menu()
+            choice = self.gui.main_menu()
             if choice == 0:  #new game
                 self.new_game()
                 self.play_game()
@@ -34,7 +33,7 @@ class Controller:
                 try:
                     self.load_game()
                 except:
-                    gui.msgbox('\n No saved game to load.\n', 24)
+                    self.gui.msgbox('\n No saved game to load.\n', 24)
                     continue
                 self.play_game()
             elif choice == 2:  #quit
@@ -49,7 +48,7 @@ class Controller:
  
         #try to find an attackable object there
         target = None
-        for obj in self.world.my_map.objects:
+        for obj in self.world.current_map.objects:
             if obj.x == x and obj.y == y:
                 target = obj
                 break
@@ -61,11 +60,11 @@ class Controller:
 
         newx = player.x + dx
         newy = player.y + dy
-        if not self.world.my_map.is_blocked(newx,newy):
+        if not self.world.current_map.is_blocked(newx,newy):
             event = player.move(dx, dy)
             if event:
                 if event.type == "teleport":
-                    self.world.my_map = event.map
+                    self.world.current_map = event.map
                     if player not in event.map.objects:
                         event.map.objects.append(player)
                 elif event.type == "action":
@@ -73,7 +72,7 @@ class Controller:
                     print(actionResult)
             self.gui.fov_recompute = True
         else:
-            blockingTile = self.world.my_map.getTile(newx,newy)
+            blockingTile = self.world.current_map.getTile(newx,newy)
             print("You ran into",blockingTile.name)
             player.handleInteraction(blockingTile)
         
@@ -124,9 +123,9 @@ class Controller:
                 #test for other keys
                 if user_input.text == 'g':
                     #pick up an item
-                    for obj in self.world.my_map.objects:  #look for an item in the player's tile
+                    for obj in self.world.current_map.objects:  #look for an item in the player's tile
                         if obj.x == player.x and obj.y == player.y and obj.item:
-                            obj.item.pick_up(self.world.player.inventory, self.world.my_map.objects)
+                            obj.item.pick_up(self.world.player.inventory, self.world.current_map.objects)
                             break
 
 
@@ -192,7 +191,7 @@ class Controller:
                 return None
             
             #return the first clicked monster, otherwise continue looping
-            for obj in self.world.my_map.objects:
+            for obj in self.world.current_map.objects:
                 if obj.x == x and obj.y == y and obj.fighter and obj != self.world.player:
                     return obj
  
@@ -201,7 +200,7 @@ class Controller:
         closest_enemy = None
         closest_dist = max_range + 1  #start with (slightly more than) maximum range
         
-        for obj in self.world.my_map.objects:
+        for obj in self.world.current_map.objects:
             if obj.fighter and not obj == self.world.player and (obj.x, obj.y) in self.world.visible_tiles:
                 #calculate distance between this object and the player
                 dist = player.distance_to(obj)
@@ -209,25 +208,16 @@ class Controller:
                     closest_enemy = obj
                     closest_dist = dist
         return closest_enemy
- 
-
-    def save_game(self):
-        #open a new empty shelve (possibly overwriting an old one) to write the game data
-        with shelve.open(os.path.join("savegames",'savegame'), 'n') as savefile:
-            savefile['my_map'] = self.world.my_map
-            savefile['objects'] = world.my_map.objects
-            savefile['player_index'] = world.my_map.objects.index(player)  #index of player in objects list
-            savefile['game_msgs'] = game_msgs
-            savefile['game_state'] = self.game_state
- 
- 
+  
     def load_game(self):
         self.world.load_game()
- 
+        self.world.current_map.con = self.gui.con
+        self.game_state = 'playing'
+        self.gui.message('Welcome back',colors.green) 
     def new_game(self):
         self.world.new_game()
-        self.world.my_map.con = self.gui.con
-        self.world.save_game("testing.json")
+        self.world.current_map.con = self.gui.con
+        #self.world.save_game("testing.json")
         print("Reminder: my_map shouldn't have con... should be called by controller passing in con or some other way")
         self.game_state = 'playing'
          #a warm welcoming message!
@@ -243,7 +233,7 @@ class Controller:
  
             #draw all objects in the list
             self.gui.render_all(self.world)
-            self.gui.clear_all(self.world.my_map.objects)
+            self.gui.clear_all(self.world.current_map.objects)
             
  
             #handle keys and exit game if needed
@@ -263,5 +253,5 @@ class Controller:
 
 if __name__ == "__main__":
     c = Controller()
-    c.world.save_game("quicksave")
+    c.world.save_game("quicksave.json")
     print("Goodbye")

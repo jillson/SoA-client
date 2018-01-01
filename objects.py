@@ -16,12 +16,14 @@ from models.items.itemfactory import itemFactory
 class Action:
     def __init__(self,action):
         self._action = action
+        print("Action was passed",action)
     def run(self,*args):
-        return self._action(*args)
+        return self._action.run(*args)
     def save(self):
-        return str(self._action)
-    def load(self,name):
+        return self._action.save()
+    def load(self,action):
         print("This isn't going to end  well")
+        cls = actionDict[action["classname"]]
         self._action = name
 
 class Event:
@@ -41,7 +43,15 @@ class Inventory:
             "equipped": { k: self._inventory.index(v) for k,v in self._equipped.items()}
         }
     def load(self,rez):
-        print("Need to do rez")
+        self.gold = rez["gold"]
+        self._inventory = []
+        self._equipped = {}
+        for itemData in rez["items"]:
+            item = itemFactory.getItem(itemData['name'],itemData['amt'])
+            self._inventory.append(item)
+            #TODO: add any other attributes (attrs?)
+        for k,v in rez["equipped"].items():
+            self._equipped[k] = self._inventory[v]
         
     def getEquippedStr(self):
         items = ["{}:{}".format(k,v and v.name) for k,v in self._equipped.items()]
@@ -66,7 +76,7 @@ class Inventory:
                 print("Debug, handle",e)
 
     def drop(self, item):
-        item.drop(self.owner,self.owner.my_map.objects,self)
+        item.drop(self.owner,self.owner.current_map.objects,self)
     def buy(self,itemName,price,amt=1):
         if price * amt > self.gold:
             return False
@@ -157,23 +167,29 @@ class Inventory:
         return self._inventory
     
     
-
-def checkpointCheck(player,gui):
-    if player.checkPoints:
-        header = "Select a checkpoint to start at"
-    else:
-        header = "You have no checkpoints yet; go find some"
-    choice = gui.menu(header,["cancel"]+list(player.checkPoints.keys()),INVENTORY_WIDTH)
-    print("Would check for checkpoints etc. but need to change how things work")
-    return choice
+class Checkpoint:
+    def __init__(self):
+        pass
+    def save(self):
+        return {"type":"Checkpoint"}
+    def load(self,rez=None):
+        pass
+    def runCheck(self,player,gui):
+        if player.checkPoints:
+            header = "Select a checkpoint to start at"
+        else:
+            header = "You have no checkpoints yet; go find some"
+        choice = gui.menu(header,["cancel"]+list(player.checkPoints.keys()),INVENTORY_WIDTH)
+        print("Would check for checkpoints etc. but need to change how things work")
+        return choice
  
 
 
 
 class Player(GameCharacter):
-    def __init__(self, x, y, char, name, color, my_map):
+    def __init__(self, x, y, char, name, color, current_map):
         fighter = Fighter(hp=30, defense=2, power=5, death_function=player_death)
-        super(Player, self).__init__(x,y,char,name,color,my_map,True,fighter,None,None)
+        super(Player, self).__init__(x,y,char,name,color,current_map,True,fighter,None,None)
         self.inventory = Inventory(self)
         self.interactionMap = {"tree":self.chop,"gem":self.mine,"stone":self.mine,"water":self.water,"plant":self.pick}
         self.previous = {}
@@ -187,9 +203,8 @@ class Player(GameCharacter):
         rez["name"] = self.name
         rez["x"] = self.x
         rez["y"] = self.y
-        rez["my_map"] = self.my_map.name
         return rez
-    def load(self,rez,mapDict):
+    def load(self,rez):
         self.attrs = rez["attrs"]
         self.color = rez["color"]
         self.char = rez["char"]
@@ -197,20 +212,17 @@ class Player(GameCharacter):
         self.name = rez["name"]
         self.x = rez["x"]
         self.y = rez["y"]
-        self.my_map = mapDict[rez["my_map"]]
-                        
-        
 
     def handleInteraction(self,tile):
         self.interactionMap.get(tile.name,self.default)(tile)
 
     def move(self, dx, dy):
         #move by the given amount, if the destination is not blocked
-        if not self.my_map.is_blocked(self.x + dx, self.y + dy):
+        if not self.current_map.is_blocked(self.x + dx, self.y + dy):
             oldX,oldY = self.x,self.y
             self.x += dx
             self.y += dy
-            return self.my_map.enterSpace(self,oldX,oldY)
+            return self.current_map.enterSpace(self,oldX,oldY)
 
     def addItem(self,itemName,amt):
         self.inventory.addByName(itemName,amt)
@@ -264,6 +276,7 @@ class Fighter:
                  "max_hp": self.max_hp,
                  "defense" : self.defense,
                  "power": self.power,
+                 "type": "Fighter"
         }
 
     def load(self,rez):
@@ -300,6 +313,8 @@ class Fighter:
             self.hp = self.max_hp
  
 class BasicMonster:
+    def save(self):
+        return {"type":"BasicMonster"}
     #AI for a basic monster.
     def take_turn(self, visible_tiles, player):
         #a basic monster takes its turn. If you can see it, it can see you
@@ -335,6 +350,9 @@ class ConfusedMonster:
 class Item:
     #an item that can be picked up and used.
     def __init__(self, use_function=None, single=True, amt=1):
+        print("We called Item __init__... why?")
+        import pdb
+        pdb.set_trace()
         self.use_function = use_function
         self.amt = amt
         self.single = single
@@ -450,7 +468,7 @@ def cast_fireball(player):
     print('The fireball explodes, burning everything within ' + 
             str(FIREBALL_RADIUS) + ' tiles!', colors.orange)
  
-    for obj in world.my_map.objects:  #damage every fighter in range, including the player
+    for obj in world.current_map.objects:  #damage every fighter in range, including the player
         if obj.distance(x, y) <= FIREBALL_RADIUS and obj.fighter:
             print('The ' + obj.name + ' gets burned for ' + 
                     str(FIREBALL_DAMAGE) + ' hit points.', colors.orange)

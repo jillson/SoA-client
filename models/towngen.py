@@ -28,7 +28,7 @@ class SchoolGenerator(BaseGenerator):
         else:
             dtile = "air"
             
-        self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile=dtile)
+        self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile=dtile,mapDict=self.mapDict)
         self.my_map.name = name
         self.my_map.startX = 30
         self.my_map.startY = 46
@@ -91,7 +91,7 @@ class TownGenerator(BaseGenerator):
         """
         #TODO: name the roads using another generator (or q&d hack that glues way/street/drive/etc. to other names?)
         
-        self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile="grass")
+        self.my_map = Map(width=MAP_WIDTH, height = MAP_HEIGHT, default_tile="grass",mapDict=self.mapDict)
         #self.my_map.startX = 27
         #self.my_map.startY = 31
         self.my_map.startX = 26

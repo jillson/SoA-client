@@ -1,15 +1,33 @@
 save/load game options
+ fix scheduler load/save
+
 add planting
   planting seeds should decrement the number of seeds in inventory by one
-chopping tree doesn't change spot to dirt correctly (check also mining stone)
-fix town creation so water in farms doesn't block front door
-fix town creation to make stones vs rocks in forest
-add long-time-actions
+add harvesting
+
+add ownership (or control) of plots
+
+add hunger
+
+add foodStore
+
+BUGS:
+  When selling stuff, selling 2nd item seems to reorder stuff??
+  fix town creation so water in farms doesn't block front door
+  fix town creation to make stones vs rocks in forest
+  chopping tree doesn't change spot to dirt correctly (check also mining stone)
+
+NICE TO HAVES:
+  save/loading passes JSON through zip (or bzip or whatever)
+  refactor more objects to provide a @classmethod load function
+  refactor more objects to have common bases to reduce dupe code if possible
+  display should include gold
 add watering
 add filling watering can
 add prices
 add real store inventories
 add minor economy sim?
+add long-time-actions
 refactor objects.py and models/*
 add npcs
 add talking to npcs
@@ -17,6 +35,7 @@ add friendships
 add limits to inventory (and/or paginate inventory better :|)
 add weather
 add quests
+refactor store/checkpoint/tbd to use common base class (which also handles reconstituting them?)
 add attrs to items (and set/use them)
 Dungeons have checkpoints
 Dungeons reset on entry

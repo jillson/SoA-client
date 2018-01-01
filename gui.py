@@ -62,7 +62,7 @@ class Gui:
         if self.fov_recompute:
             self.fov_recompute = False
             self.visible_tiles = tdl.map.quickFOV(player.x, player.y,
-                                         world.my_map.is_visible_tile,
+                                         world.current_map.is_visible_tile,
                                          fov=FOV_ALGO,
                                          radius=TORCH_RADIUS,
                                          lightWalls=FOV_LIGHT_WALLS)
@@ -71,12 +71,12 @@ class Gui:
             for y in range(MAP_HEIGHT):
                 for x in range(MAP_WIDTH):
                     visible = (x, y) in self.visible_tiles
-                    t = world.my_map.my_map[x][y]
-                    wall = world.my_map.my_map[x][y].block_sight
+                    t = world.current_map.tiles[x][y]
+                    wall = world.current_map.tiles[x][y].block_sight
                     if not visible:
                         #if it's not visible right now, the player can only see it 
                         #if it's explored
-                        if world.my_map.my_map[x][y].explored:
+                        if world.current_map.tiles[x][y].explored:
                             self.con.draw_char(x, y, t.char, fg=t.fg_color, bg=t.alt_color)
                     else:
                         self.con.draw_char(x, y, t.char, fg=t.fg_color, bg=t.color)
@@ -85,7 +85,7 @@ class Gui:
  
  
         #draw all objects in the list
-        for obj in world.my_map.objects:
+        for obj in world.current_map.objects:
             if obj != player:
                 obj.draw(self.con,self.visible_tiles)
         player.draw(self.con, self.visible_tiles)
@@ -124,13 +124,13 @@ class Gui:
         self.panel.draw_str(1, 2, "Hello World", bg=None, fg=colors.light_gray)
 
         tx,ty = self.mouse_coord
-        if world.my_map.is_visible_tile(tx,ty):
-            tile = world.my_map.getTile(tx,ty)
+        if world.current_map.is_visible_tile(tx,ty):
+            tile = world.current_map.getTile(tx,ty)
         else:
             tile = None
  
         #display names of objects under the mouse
-        self.panel.draw_str(1, 0, self.get_names_under_mouse(world.my_map.objects, tile), bg=None, fg=colors.light_gray)
+        self.panel.draw_str(1, 0, self.get_names_under_mouse(world.current_map.objects, tile), bg=None, fg=colors.light_gray)
  
         #blit the contents of "panel" to the root console
         self.root.blit(self.panel, 0, PANEL_Y, SCREEN_WIDTH, PANEL_HEIGHT, 0, 0)

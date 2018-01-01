@@ -12,6 +12,11 @@ from gameconsts import *
 
 from objects import *
 
+from models.items.baseobject import GameCharacter
+from models.items.itemfactory import Item as NewItem
+from models.time import ScheduledItem
+from models.store import Store
+
 print("Reminder: set self.explored to False when done debugging")
 
 
@@ -21,13 +26,14 @@ class MapSwitch:
         self.generator = generator
         self.startX = startX
         self.startY = startY
+        print("Made a MapSwitch to",targetName,startX,startY)
     def save(self):
         rez = {}
         rez["targetName"] = self.targetName
         rez["startX"] = self.startX
         rez["startY"] = self.startY
         if self.generator:
-            rez["generator"] = self.generator.save()
+            rez["generator"] = {"name": self.generator.Name}
         else:
             rez["generator"] = None
         return rez
@@ -46,7 +52,6 @@ class MapSwitch:
         if not tMap:
             print("Warning, couldn't find {}".format(self.targetName))
             return None,0,0
-
         if self.startX == None:
             self.startX = tMap.startX
         if self.startY == None:
@@ -62,6 +67,102 @@ class BaseGenerator:
         self.mapDict = mapDict
     def save(self):
         return {"name": self.Name, "basename":self.basename}
+
+    def load(self,rez):
+        print("Do load")
+
+    def createTile(self,rez):
+        t = Tile(rez["name"],rez["blocked"],rez["block_sight"],rez["color"],rez["alt_color"],rez["char"])
+        t.explored = rez["explored"]
+        t.fg_color = rez["fg_color"]
+        
+        if rez["action"]:
+            aType = rez["action"]["type"]
+            if aType == "Store":
+                print("TODO: store should be stored in map, not obliquely in a tile")
+                t.action = Action(Store(rez["action"]["name"]))
+                if rez["action"]["ownername"]:
+                    print("Hmm, we need to look up owner by his name")
+            elif aType == "Checkpoint":
+                t.action = Action(Checkpoint())
+            else:
+                import pdb
+                pdb.set_trace()
+        if rez["target"]:
+            generator = None
+            target = rez["target"]
+            if target["generator"]:
+                generator = mapGenerators.get(target["generator"]["name"])
+                if not generator:
+                    print("Hmm, we may have to reconstitute this the hard way?",target["generator"])
+
+            t.target = MapSwitch(startX=target["startX"],startY=target["startY"],targetName=target["targetName"],generator=generator)
+        t.timeItems = [ScheduledItem.load(t,si) for si in rez["timeItems"]]
+        return t
+
+    def loadObject(self,o,myMap):
+        if o.get("type","") == "item":
+            function = None
+            if o["function"]:
+                function = itemActions.get(o["function"])
+            return NewItem(o["name"],
+                       o["x"],
+                       o["y"],
+                       o["char"],
+                       o["color"],
+                       o["blocks"],
+                       function,
+                       o["function"],
+                       o["single"],
+                       o["amt"])
+        elif o.get("type","") in ["GameCharacter","GameObject"]:
+            if o["fighter"]:
+                if o["fighter"]["type"] == "Fighter":
+                    fd = o["fighter"]
+                    fighter = Fighter(hp=fd["hp"],defense=fd["defense"],power=fd["power"])
+                    fighter.max_hp = fd["max_hp"]
+                else:
+                    import pdb
+                    pdb.set_trace()
+            else:
+                fighter = None
+            if o["ai"]:
+                if o["ai"]["type"] == "BasicMonster":
+                    ai = BasicMonster()
+                else:
+                    import pdb
+                    pdb.set_trace()
+
+            item = None
+            return GameCharacter(o["x"],
+                                 o["y"],
+                                 o["char"],
+                                 o["name"],
+                                 o["color"],
+                                 myMap,
+                                 o["blocks"],
+                                 fighter,
+                                 ai,
+                                 item,
+                                 o["attrs"])
+
+        print("Didn't know how to handle this object")
+        import pdb
+        pdb.set_trace()
+        return None
+
+                 
+    def loadMap(self,rez,player):
+        myMap = Map(width=rez["width"],height=rez["height"],init=False,mapDict=self.mapDict)
+        myMap.objects = [self.loadObject(o,myMap) for o in rez["objects"]]
+        if rez["pIndex"] > -1:
+            myMap.objects.insert(rez["pIndex"],player)
+        myMap.tiles = [[self.createTile(tileData) for tileData in row] for row in rez["tiles"]]
+        myMap.attrs = rez["attrs"]
+        myMap.name = rez["name"]
+        myMap.startX = rez["startX"]
+        myMap.startY = rez["startY"]
+        return myMap
         
     def generate_map(self,name=None):
         if not name:
@@ -69,7 +170,7 @@ class BaseGenerator:
         if name and self.mapDict.get(name):
             return self.mapDict[name]
         
-        self.my_map = Map(width=MAP_WIDTH, height=MAP_HEIGHT, default_tile=self.default_tile)
+        self.my_map = Map(width=MAP_WIDTH, height=MAP_HEIGHT, default_tile=self.default_tile, mapDict=self.mapDict)
         self.my_map.name = name
         rooms = []
         num_rooms = 0
@@ -109,7 +210,7 @@ class BaseGenerator:
                     self.my_map.startY = new_y
                     if level == 1:
                         self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="school1"))
-                        self.my_map.setTile(new_x,new_y+2,"rune",action=Action(checkpointCheck))
+                        self.my_map.setTile(new_x,new_y+2,"rune",action=Action(Checkpoint()))
                     else:
                         self.my_map.setTile(new_x,new_y,"stairUp",target=MapSwitch(targetName="{}{}".format(self.basename,level-1)))
                 else:
@@ -214,6 +315,7 @@ class Tile:
         self.attrs = {}
         self.target = None
         self.action = None
+        self.timeItems = []
 
     def save(self):
         rez = {}
@@ -230,6 +332,7 @@ class Tile:
         rez["explored"] = self.explored
         rez["fg_color"] = self.fg_color
         rez["name"] = self.name
+        rez["timeItems"] = [si.save() for si in self.timeItems]
         if self.target:
             rez["target"] = self.target.save()
         else:
@@ -325,26 +428,32 @@ class Building:
 
 #TODO: pass in objects to start on map?
 class Map:
-    def __init__(self,width=MAP_WIDTH,height=MAP_HEIGHT,default_tile="grass"):
+    def __init__(self,width=MAP_WIDTH,height=MAP_HEIGHT,default_tile="grass",init=True,mapDict=None):
         #the list of objects on this map
         self.objects = [] #[player]
         self.attrs = {}
         self.width = width
         self.height = height
+        self.startX = 0
+        self.startY = 0
+        self.mapDict = mapDict
         #fill map with default_tiles
-        
-        self.my_map = [[ tg[default_tile].generate() for _ in range(self.height)] for _ in range(self.width)]
+        if init:
+            self.tiles = [[ tg[default_tile].generate() for _ in range(self.height)] for _ in range(self.width)]
 
     def save(self,player):
         rez = {}
         rez["pIndex"] = -1
         if player in self.objects:
             rez["pIndex"] = self.objects.index(player)
-        rez["tiles"] = [[tile.save() for tile in row] for row in self.my_map]
+        rez["tiles"] = [[tile.save() for tile in row] for row in self.tiles]
         rez["width"] = self.width
         rez["height"] = self.height
         rez["objects"] = [obj.save() for obj in self.objects if obj != player]
         rez["attrs"] = self.attrs
+        rez["name"] = self.name
+        rez["startX"] = self.startX
+        rez["startY"] = self.startY
         return rez
 
     def load(self,rez):
@@ -352,7 +461,7 @@ class Map:
 
     def enterSpace(self,obj,oldX,oldY):
         x,y=obj.x,obj.y
-        tile = self.my_map[x][y]
+        tile = self.tiles[x][y]
         if tile.target:
             if obj in self.objects:
                 self.objects.remove(obj)
@@ -360,7 +469,7 @@ class Map:
             obj.previous[self.name] = (oldX,oldY)
             newMap,newX,newY = tile.target.switch(self.mapDict)
             obj.x,obj.y = obj.previous.get(newMap.name,(newX,newY))
-            obj.my_map = newMap
+            obj.current_map = newMap
             e = Event(type="teleport")
             e.map = newMap
             return e
@@ -376,7 +485,7 @@ class Map:
         return self.height
 
     def getTile(self,x,y):
-        return self.my_map[x][y]
+        return self.tiles[x][y]
 
     def setTile(self,x,y,tileName,target=None,action=None):
         if x >= self.width or y >= self.height:
@@ -386,15 +495,16 @@ class Map:
             print("Warning, couldn't find {} in tile cache".format(tileName))
             t = tg.get("grass")
         try :
-            self.my_map[x][y] = t.generate()
-            self.my_map[x][y].target = target
-            self.my_map[x][y].action = action
-        except:
+            self.tiles[x][y] = t.generate()
+            self.tiles[x][y].target = target
+            self.tiles[x][y].action = action
+        except Exception as ex:
+            print(ex)
             import pdb
             pdb.set_trace()
     def is_blocked(self, x, y):
         #first test the map tile
-        if self.my_map[x][y].blocked:
+        if self.tiles[x][y].blocked:
             return True
  
         #now check for any blocking objects
@@ -409,7 +519,7 @@ class Map:
             return False
         elif y >= self.height or y < 0:
             return False
-        elif self.my_map[x][y].block_sight:
+        elif self.tiles[x][y].block_sight:
             return False
         else:
             return True

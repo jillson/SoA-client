@@ -1,7 +1,7 @@
 class GameObject:
     #this is a generic object: the player, a monster, an item, the stairs...
     #it's always represented by a character on screen.
-    def __init__(self, x, y, char, name, color, my_map, blocks=False, 
+    def __init__(self, x, y, char, name, color, current_map, blocks=False, 
                  fighter=None, ai=None, item=None, attrs = None):
         self.x = x
         self.y = y
@@ -10,7 +10,7 @@ class GameObject:
         self.name = name
         self.blocks = blocks
         self.fighter = fighter
-        self.my_map = my_map
+        self.current_map = current_map
         self.attrs = attrs or {}
  
         if self.fighter:  #let the fighter component know who owns it
@@ -29,7 +29,7 @@ class GameObject:
             import pdb
             pdb.set_trace()
         if self.ai:
-            ai = str(self.ai.__class__)
+            ai = self.ai.save()
         else:
             ai = None    
 
@@ -47,7 +47,8 @@ class GameObject:
             "fighter": fighter,
             "ai": ai,
             "blocks": self.blocks,
-            "name": self.name
+            "name": self.name,
+            "type": "GameObject"
         }
 
     def load(self,rez):
@@ -56,7 +57,7 @@ class GameObject:
  
     def move(self, dx, dy):
         #move by the given amount, if the destination is not blocked
-        if not self.my_map.is_blocked(self.x + dx, self.y + dy):
+        if not self.current_map.is_blocked(self.x + dx, self.y + dy):
             self.x += dx
             self.y += dy
 
@@ -90,7 +91,7 @@ class GameObject:
     def send_to_back(self):
         #make this object be drawn first, so all others appear above it if 
         #they're in the same tile.
-        objects = self.my_map.objects
+        objects = self.current_map.objects
         objects.remove(self)
         objects.insert(0, self)
  

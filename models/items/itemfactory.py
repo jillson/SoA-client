@@ -27,11 +27,12 @@ class Item:
         rez["x"] = self.x
         rez["y"] = self.y
         rez["function"] = self.functionName
+        rez["type"] = "item"
         return rez
         
     def use(self,owner,inv):
         if self.function:
-            targetTile = owner.my_map.getTile(owner.x,owner.y)
+            targetTile = owner.current_map.getTile(owner.x,owner.y)
             return self.function(self,owner,inv,targetTile)
         return
     def getName(self):

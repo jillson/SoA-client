@@ -13,7 +13,7 @@ class StoreBaseGenerator:
     def generate_store(self,map,x,y,name,owner=None):
         if not self.stores.get(name):
             self.stores[name] = Store(name,owner)
-        map.setTile(x,y,"register",action=Action(self.stores[name].interact))
+        map.setTile(x,y,"register",action=Action(self.stores[name]))
         return self.stores[name]
     
 
@@ -24,7 +24,7 @@ class Store:
         self.ownername = ""
         if self.owner:
             self.ownername = self.owner.name
-    def interact(self,player,gui):
+    def run(self,player,gui):
         while True:
             choice = gui.menu("Welcome to {}'s Store {}".format(self.ownername or "Noone",self.name), ["Buy","Sell"], INVENTORY_WIDTH)
             cmd = {0:self.buy,1:self.sell}.get(choice)
@@ -33,6 +33,14 @@ class Store:
                     pass
             else:
                 break
+    def save(self):
+        return {"type":"Store",
+                "name":self.name,
+                "ownername":self.ownername}
+    def load(self,rez):
+        self.name = rez["name"]
+        self.ownername = rez["ownername"]
+        
     def buy(self,player,gui):
         choice = gui.menu("You have {} gold".format(player.inventory.gold),
                           ["Acorn (50gp)",

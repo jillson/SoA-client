@@ -4,6 +4,7 @@ from models.time import scheduler as timeObj
 
 
 def revertHoe(tile):
+    print("Hoed land reverted to previous")
     tile.attrs["hoed"] = False
     targetTile.char = " "
     
@@ -47,6 +48,10 @@ def plantFunc(item,owner,inv,targetTile):
     timeObj.cancel(targetTile)
     timeObj.schedule(targetTile,"nextDay",checkPlant)
 
-itemActions = {"hoeFunc":hoeFunc,"plantFunc":plantFunc}
-
+itemActions = {"hoeFunc":hoeFunc,
+               "plantFunc":plantFunc,
+               "revertHoe":revertHoe,
+               "revertWater":revertWater,
+               "checkPlant":checkPlant}
+               
     
