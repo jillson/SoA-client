@@ -16,13 +16,11 @@ from models.items.itemfactory import itemFactory
 class Action:
     def __init__(self,action):
         self._action = action
-        print("Action was passed",action)
     def run(self,*args):
         return self._action.run(*args)
     def save(self):
         return self._action.save()
     def load(self,action):
-        print("This isn't going to end  well")
         cls = actionDict[action["classname"]]
         self._action = name
 

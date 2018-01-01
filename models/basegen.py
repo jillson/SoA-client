@@ -26,7 +26,6 @@ class MapSwitch:
         self.generator = generator
         self.startX = startX
         self.startY = startY
-        print("Made a MapSwitch to",targetName,startX,startY)
     def save(self):
         rez = {}
         rez["targetName"] = self.targetName
@@ -37,8 +36,6 @@ class MapSwitch:
         else:
             rez["generator"] = None
         return rez
-    def load(self,rez):
-        print("Do load mapswtich")
     def switch(self,mapDict):
         print("Switching to",self.targetName)
         tMap = None
