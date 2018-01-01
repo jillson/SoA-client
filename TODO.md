@@ -1,9 +1,12 @@
-save/load game options
- fix scheduler load/save
-
-add planting
+Farming actions:
+  add debug actions to skip a day
+  look if it's hard to add details on timeouts
   planting seeds should decrement the number of seeds in inventory by one
-add harvesting
+  seeds should turn into bushes after X days
+  bushes should sprout stuff after Y days
+  add harvesting
+  add watering
+  add filling watering can
 
 add ownership (or control) of plots
 
@@ -22,8 +25,7 @@ NICE TO HAVES:
   refactor more objects to provide a @classmethod load function
   refactor more objects to have common bases to reduce dupe code if possible
   display should include gold
-add watering
-add filling watering can
+
 add prices
 add real store inventories
 add minor economy sim?
