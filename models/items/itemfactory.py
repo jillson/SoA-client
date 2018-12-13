@@ -57,7 +57,7 @@ class Item:
 
 
 class ItemGenerator:
-    def __init__(self,name,char="X",color=colors.white,blocks=True,function=None,single=True):
+    def __init__(self,name,char="X",color=colors.white,blocks=True,function=None,single=True,attrs=None):
         self.name = name
         self.char = char
         self.color = color
@@ -68,16 +68,19 @@ class ItemGenerator:
         else:
             self.function = None
         self.single = single
+        self.attrs = attrs
     def getItem(self,amt=1,x=None,y=None):
-        return Item(self.name,x,y,self.char,self.color,self.blocks,self.function,self.functionName,self.single,amt)
+        item = Item(self.name,x,y,self.char,self.color,self.blocks,self.function,self.functionName,self.single,amt)
+        item.attrs = dict(self.attrs)
+        return item
 
 class ItemFactory:
     def __init__(self):
         self.factories = {}
         self.factories["default"] = ItemGenerator("default")
                                                   
-    def register(self,name,char,color,blocks=False,function=None,single=True):
-        self.factories[name] = ItemGenerator(name,char,color,blocks,function,single)
+    def register(self,name,char,color,blocks=False,function=None,single=True,attrs=None):
+        self.factories[name] = ItemGenerator(name,char,color,blocks,function,single,attrs)
     def getItem(self,name,amt=1,x=None,y=None):
         ig = self.factories.get(name)
         if not ig:
@@ -95,7 +98,12 @@ itemFactory.register("healing potion", "!", colors.light_red)
 itemFactory.register("mana potion", "!", colors.light_blue)
 
 itemFactory.register("acorn", "t", colors.light_sepia, single=False, function="plantFunc")
-itemFactory.register("wheat seeds", "t", colors.light_yellow, single=False, function="plantFunc")
+
+itemFactory.register("wheat", "t", colors.light_yellow, single=False, function="plantFunc", attrs = {"matureTime":5})
+itemFactory.register("wheat", "t", colors.light_yellow, single=False, function="plantFunc", attrs = {"matureTime":5})
+itemFactory.register("wheat", "t", colors.light_yellow, single=False, function="plantFunc", attrs = {"matureTime":5})
+itemFactory.register("wheat", "t", colors.light_yellow, single=False, function="plantFunc", attrs = {"matureTime":5})
+
 
 itemFactory.register("stone", "*", colors.grey, single=False)
 itemFactory.register("gem", "*", colors.light_blue, single=False)

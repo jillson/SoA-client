@@ -75,7 +75,7 @@ class Controller:
             blockingTile = self.world.current_map.getTile(newx,newy)
             print("You ran into",blockingTile.name)
             player.handleInteraction(blockingTile)
-        
+            self.gui.fov_recompute = True
 
     def handle_keys(self):
         player = self.world.player
@@ -101,8 +101,9 @@ class Controller:
             import pdb
             pdb.set_trace()
         elif user_input.text == 'l':
-            print ("Debug, waiting a day")
-            return 'wait a day'
+            print ("Debug, skipping a day")
+            self.world.skipDay = True
+            #return 'wait a day'
         else:
             print("Huh,",user_input.text)
  

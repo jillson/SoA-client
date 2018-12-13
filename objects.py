@@ -255,7 +255,8 @@ class Player(GameCharacter):
     def water(self,tile):
         pass
     def pick(self,tile):
-        pass
+        newObj,amt = tile.pick()
+        self.addItem(newObj,amt)
     def default(self,tile):
         print("Bonk, you tried to walk into a ",tile.name)
 

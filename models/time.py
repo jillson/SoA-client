@@ -14,6 +14,10 @@ class ScheduledItem:
         from models.items.itemactions import itemActions
 
         function = itemActions.get(fName)
+        if not function:
+            print("Couldn't find",fName)
+            import pdb
+            pdb.set_trace()
         
         si = cls(item,function)
         si.time = rez["time"]
@@ -45,13 +49,14 @@ class Scheduler:
         self.ticks = rez["ticks"]
         
     def cancel(self,item):
-        if item.target:
-            self.removeItems(item.target.timeItems,item)
+        print("Going to cancel",item)
+        self.removeItems(item.timeItems,item)
         self.removeItems(self.shortterm,item)
         self.removeItems(self.daily,item)
         self.removeItems(self.monthly,item)
         
     def removeItems(self,lst,item):
+        print("Trying to remove",item,"from",lst)
         toRemove = [x for x in lst if x.target == item]
         for i in toRemove:
             lst.remove(i)
@@ -66,7 +71,9 @@ class Scheduler:
             self.monthly.append(si)
             si.time="month"
         else:
-            si.time = time+self.ticks
+            print("DEBUG: fix me in time.py")
+            si.time = self.ticks+2
+            #si.time = time+self.ticks
             self.shortterm.append(si)
 
     def reset(self):
@@ -81,13 +88,13 @@ class Scheduler:
         r = int(r/24)
         return r,h,m,s
     
-    def tick(self):
+    def tick(self,skipDay):
         self.ticks += 1
         pendingList = [x for x in self.shortterm if self.ticks >= x.time]
         for p in pendingList:
             self.shortterm.remove(p)
             
-        if self.ticks % TICKS_PER_DAY == 0:
+        if self.ticks % TICKS_PER_DAY == 0 or skipDay:
             if self.ticks % TICKS_PER_MONTH == 0:
                 pendingList += self.monthly
                 self.monthly = []
@@ -95,8 +102,9 @@ class Scheduler:
             self.daily = []
 
         if pendingList:
-            print(pendingList)
-            print(x.function for x in pendingList)
+            for x in pendingList:
+                x.target.timeItems.remove(x)
+            print([x.function for x in pendingList])
         
         return pendingList
 

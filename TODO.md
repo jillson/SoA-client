@@ -1,12 +1,15 @@
 Farming actions:
-  add debug actions to skip a day
-  look if it's hard to add details on timeouts
-  planting seeds should decrement the number of seeds in inventory by one
-  seeds should turn into bushes after X days
+  figure out why planting seed isn't canceling revertHoe --> bad if
+  add debug actions to skip a day --> done
+  look if it's hard to add details on timeouts --> no, but printing them in the space is... 
+  seeds should turn into bushes after X days --> done
   bushes should sprout stuff after Y days
-  add harvesting
+  planting seeds should decrement the number of seeds in inventory by one
+  add harvesting --> need to make harvestring (and other actions) trigger a refresh?
   add watering
   add filling watering can
+  add game of life like rules run every day
+  should hoeing grass turn it into dirt?
 
 add ownership (or control) of plots
 
@@ -15,6 +18,8 @@ add hunger
 add foodStore
 
 BUGS:
+  NOT A BUG: Why are some trees green and others brown --> Duh, green if visible
+  Why are trees not showing in mouse over --> less duh
   When selling stuff, selling 2nd item seems to reorder stuff??
   fix town creation so water in farms doesn't block front door
   fix town creation to make stones vs rocks in forest
@@ -25,6 +30,7 @@ NICE TO HAVES:
   refactor more objects to provide a @classmethod load function
   refactor more objects to have common bases to reduce dupe code if possible
   display should include gold
+  adjust colors to increase contrast
 
 add prices
 add real store inventories
@@ -34,6 +40,11 @@ refactor objects.py and models/*
 add npcs
 add talking to npcs
 add friendships
+add bunnies
+add birds
+add deers
+add fox?
+add wolves?
 add limits to inventory (and/or paginate inventory better :|)
 add weather
 add quests

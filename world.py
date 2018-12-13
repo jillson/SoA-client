@@ -28,6 +28,8 @@ class World:
         load_name_generators()
         self.scheduler = scheduler
         self.mapDict = {}
+        #TODO: remove this when done debugging time stuff
+        self.skipDay = False
     def new_game(self):
         mapDict = self.mapDict
         mapDict["town"] = TownGenerator(mapDict).generate_map()
@@ -94,5 +96,9 @@ class World:
             if obj.ai:
                 obj.ai.take_turn(visible_tiles, self.player)
         #self.current_map.refresh(self.ticks % self.current_map.getWidth())
-        self.scheduler.tick()
+        actions = self.scheduler.tick(self.skipDay)
+        for action in actions:
+            action.function(action.target)
+        self.skipDay = False
+
 

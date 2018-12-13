@@ -6,7 +6,6 @@ from random import randint
 import colors
 import math
 import textwrap
-import shelve
 
 from gameconsts import *
 
@@ -14,8 +13,10 @@ from objects import *
 
 from models.items.baseobject import GameCharacter
 from models.items.itemfactory import Item as NewItem
-from models.time import ScheduledItem
+from models.time import ScheduledItem, scheduler
 from models.store import Store
+
+from models.items.itemactions import *
 
 print("Reminder: set self.explored to False when done debugging")
 
@@ -72,6 +73,7 @@ class BaseGenerator:
         t = Tile(rez["name"],rez["blocked"],rez["block_sight"],rez["color"],rez["alt_color"],rez["char"])
         t.explored = rez["explored"]
         t.fg_color = rez["fg_color"]
+        t.attrs = rez["attrs"]
         
         if rez["action"]:
             aType = rez["action"]["type"]
@@ -94,6 +96,10 @@ class BaseGenerator:
                     print("Hmm, we may have to reconstitute this the hard way?",target["generator"])
 
             t.target = MapSwitch(startX=target["startX"],startY=target["startY"],targetName=target["targetName"],generator=generator)
+        if rez["timeItems"]:
+            import pdb
+            pdb.set_trace()
+            
         t.timeItems = [ScheduledItem.load(t,si) for si in rez["timeItems"]]
         return t
 
@@ -329,14 +335,31 @@ class Tile:
         rez["explored"] = self.explored
         rez["fg_color"] = self.fg_color
         rez["name"] = self.name
+        if self.timeItems:
+            print("Saving {} timeItems".format(len(self.timeItems)))
         rez["timeItems"] = [si.save() for si in self.timeItems]
         if self.target:
             rez["target"] = self.target.save()
         else:
             rez["target"] = None
         return rez
+
+    def pick(self):
+        amt = random.randint(1,self.attrs["fruit"]+1)
+        if amt > self.attrs["fruit"]:
+            amt = self.attrs["fruit"]
+        self.attrs["fruit"] -= amt
+        if self.attrs["fruit"] == 0:
+            self.fg_color = colors.green
+            self.name = "shrub"
+            self.attrs["seed"]["mature"] = self.attrs["seed"]["max_mature"]  
+            scheduler.schedule(self,"nextDay",checkBush)
+        return self.attrs["plant"]["name"],amt
     
     def getDescription(self):
+        details = ",".join([str(x.function)+ "@" + str(x.time) for x in self.timeItems])
+        if details:
+            print("Details for tile",details)
         if self.attrs:
             return "{}({})".format(self.name,",".join([k for k,v in self.attrs.items() if v]))
         return self.name
